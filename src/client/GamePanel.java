@@ -4,7 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
-    private int velocityY = 0;  // Vertical speed
+    private int velocityY = 0;// Vertical speed
+    private int velocityX = 0;// Horizontal speed
     private boolean thrust = false;
     private Timer timer;
     private int cameraY = 0; // Camera Offset
