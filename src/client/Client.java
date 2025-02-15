@@ -1,17 +1,18 @@
 package client;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 
 public class Client {
 
     public static Rocket mainRocket = new Rocket(RocketLevel.LEVEL_1);
 
     public static ServerHandler handleServerConnection(Rocket mainRocket) throws IOException {
-        Socket serverSocket = new Socket("10.104.160.41", 8888);
+        Socket serverSocket = new Socket(readFirstToken("src/client/resources/serverIP.txt"), 8888);
         System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
         ServerHandler serverHandler = new ServerHandler(serverSocket, mainRocket);
         Thread serverThread = new Thread(serverHandler);
@@ -20,6 +21,9 @@ public class Client {
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
+        String[] audioFiles = {"src/client/resources/song.wav"};  // Replace with actual file paths
+           //audioFiles.add("src/client/resources/themeSong.wav");
+
         ServerHandler serverHandler = null;
 
         int currentTick = 0;
@@ -31,6 +35,7 @@ public class Client {
         GamePanel panel = new GamePanel();
         frame.add(panel);
         frame.setVisible(true);
+        PlayMultipleWAV.playAudio("src/client/resources/song.wav");
 
         while(true) {
             Thread.sleep(16);
@@ -54,8 +59,18 @@ public class Client {
         }
     }
 
+    public static String readFirstToken(String filePath) {
+        try (Scanner scanner = new Scanner(new File(filePath))) {
+            if (scanner.hasNext()) {
+                return scanner.next();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if the file is empty or not found
+    }
+//, ArrayList<String> mp3Files
     static void gameLoop(int currentTick) {
 
     }
-
 }

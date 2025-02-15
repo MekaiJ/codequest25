@@ -16,6 +16,9 @@ public class Rocket implements Serializable {
 
     private int fuel;
 
+    int x;
+    int y;
+
     private int xp;
     private int xpToLevelUp;
 
@@ -131,6 +134,14 @@ public class Rocket implements Serializable {
 
     public RocketLevel getLevel() {
         return level;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
 }
