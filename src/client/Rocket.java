@@ -12,6 +12,7 @@ public class Rocket implements Serializable {
 
     private String name;
 
+    //maybe add fuel tank
     private int fuel;
 
     private RocketLevel level;
