@@ -8,6 +8,9 @@ import java.util.Scanner;
 
 
 public class Client {
+
+    public static Rocket mainRocket = new Rocket(RocketLevel.LEVEL_1);
+
     public static ServerHandler handleServerConnection(Rocket mainRocket) throws IOException {
         Socket serverSocket = new Socket(readFirstToken("src/client/resources/serverIP.txt"), 8888);
         System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
@@ -24,7 +27,6 @@ public class Client {
         ServerHandler serverHandler = null;
 
         int currentTick = 0;
-        Rocket mainRocket = new Rocket(RocketLevel.LEVEL_1);
         JFrame frame = new JFrame("Rocket Game");
         frame.setSize(500, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

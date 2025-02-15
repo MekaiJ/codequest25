@@ -1,5 +1,7 @@
 package client;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import javax.swing.*;
 
@@ -14,14 +16,59 @@ public class Rocket implements Serializable {
 
     private int fuel;
 
+    int x;
+    int y;
+
     private int xp;
     private int xpToLevelUp;
+
+    private ImageIcon texture;
 
     private RocketLevel level;
 
     public Rocket(RocketLevel level) {
         this.level = level;
         this.xp = 0;
+        this.texture = loadRocketImage(level);
+        setStats(level);
+    }
+
+    public void consumeFuel(int amount) {
+        this.fuel -= amount;
+        if (this.fuel < 0) this.fuel = 0;
+    }
+
+    public void refuel(int amount) {
+        this.fuel += amount;
+        if (this.fuel > level.getFuelCap()) this.fuel = level.getFuelCap();
+    }
+
+    // Method to load the rocket image based on the level
+    private ImageIcon loadRocketImage(RocketLevel level) {
+        String imagePath = "resources/rocket_level" + (level.ordinal() + 1) + ".png";
+        ImageIcon icon = new ImageIcon(imagePath);
+
+        // Check if the image was loaded successfully
+        if (icon.getImageLoadStatus() != MediaTracker.COMPLETE) {
+            System.err.println("Failed to load image: " + imagePath);
+            // Create a fallback image (e.g., a red rectangle)
+            Image fallbackImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = (Graphics2D) fallbackImage.getGraphics();
+            g2d.setColor(Color.RED);
+            g2d.fillRect(0, 0, 100, 100);
+            g2d.dispose();
+            icon = new ImageIcon(fallbackImage);
+        }
+
+        // Scale the image to 100x100 pixels
+        Image image = icon.getImage();
+        Image scaledImage = image.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaledImage);
+    }
+
+    // Method to get the rocket image
+    public ImageIcon getTexture() {
+        return texture;
     }
 
     private void setStats(RocketLevel level) {
@@ -87,6 +134,14 @@ public class Rocket implements Serializable {
 
     public RocketLevel getLevel() {
         return level;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
 }
