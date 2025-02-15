@@ -14,10 +14,10 @@ public class Client {
 
     public static ServerHandler handleServerConnection(Rocket mainRocket) throws IOException {
         Socket serverSocket = new Socket(readFirstToken("src/client/resources/serverIP.txt"), 8888);
-        System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
         ServerHandler serverHandler = new ServerHandler(serverSocket, mainRocket);
         Thread serverThread = new Thread(serverHandler);
         serverThread.start();
+        System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
         return serverHandler;
     }
 

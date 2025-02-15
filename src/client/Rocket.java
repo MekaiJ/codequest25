@@ -150,4 +150,7 @@ public class Rocket implements Serializable {
     public void setY(int y) {
         this.y = y;
     }
+    public void setLevel(RocketLevel level) {
+        this.level = level;
+    }
 }

@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import static client.Client.serverHandler;
+
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int velocityY = 0;// Vertical speed
     private int velocityX = 0;// Horizontal speed
@@ -59,6 +61,16 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
         }
 
+        if(serverHandler != null) {
+            ImageIcon rocketTextureOther = serverHandler.getOtherRocket().getTexture();
+            if (rocketTexture != null) {
+                rocketTexture.paintIcon(this, g, serverHandler.getOtherRocket().getX(), serverHandler.getOtherRocket().getY());
+            } else {
+                // Fallback: Draw a red rectangle if no texture is loaded
+                g.setColor(Color.RED);
+                g.fillRect(serverHandler.getOtherRocket().getX(), serverHandler.getOtherRocket().getY(), 50, 80);
+            }
+        }
         // Draw launchpad texture
         if (launchpadTexture != null) {
             g.drawImage(
