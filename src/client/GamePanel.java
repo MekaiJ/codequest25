@@ -12,7 +12,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private int worldHeight = 200000; // World height
-    private Rectangle startingPlatform = new Rectangle(100, -300, 600, 250);// Landing pad
+    private Rectangle startingPlatform = new Rectangle(100, 0, 600, 250);// Landing pad
     private int MAX_UP_VELOCITY = -45;
     private int MAX_DOWN_VELOCITY = 45;
     private int THRUST_POWER = 2;
@@ -146,8 +146,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         velocityY += 1; // Simulate gravity
 
-        if (Client.mainRocket.getY() < startingPlatform.y - 80) {
-            Client.mainRocket.setY(startingPlatform.y - 80);
+        if (Client.mainRocket.getY() > startingPlatform.y) {
+            Client.mainRocket.setY(startingPlatform.y);
             velocityY = 0;
         }
 
