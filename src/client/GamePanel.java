@@ -10,7 +10,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private int worldHeight = 200000; // World height
-    private Rectangle startingPlatform = new Rectangle(175, 0, 150, 10); // Landing pad
+    private Rectangle startingPlatform = new Rectangle(100, -300, 600, 250);// Landing pad
     private int MAX_UP_VELOCITY = -45;
     private int MAX_DOWN_VELOCITY = 45;
     private int THRUST_POWER = 2;
@@ -20,6 +20,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int durability = 100;
 
     private Image backgroundImage;
+    private Image launchpadTexture;
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -27,6 +28,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         addKeyListener(this);
 
         backgroundImage = new ImageIcon("src/client/resources/cloudsbackground.jpg").getImage();
+        launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
 
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
@@ -55,9 +57,19 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
         }
 
-        // Draw landing pad
-        g.setColor(Color.BLUE);
-        g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
+        // Draw launchpad texture
+        if (launchpadTexture != null) {
+            g.drawImage(
+                    launchpadTexture,
+                    startingPlatform.x, startingPlatform.y,
+                    startingPlatform.width, startingPlatform.height,
+                    null
+            );
+        } else {
+            // Fallback: Draw a blue rectangle if no texture is loaded
+            g.setColor(Color.BLUE);
+            g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
+        }
 
         g2d.translate(0, -cameraY);
 
