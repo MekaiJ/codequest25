@@ -20,9 +20,11 @@ public class Server {
         incomingClients.start();
 
         while(true) {
+
             for(int i = 0; i < clients.size(); i++) {
                 ClientHandler client = clients.get(i);
                 if(client.getUpdate() != null && clients.size() == 2) {
+
                     clients.get((i == 0) ? 1 : 0).writeToClient(client.getUpdate());
                     client.wipeUpdate();
                 }
@@ -48,6 +50,7 @@ public class Server {
                         continue;
                     }
                     ClientHandler handler = new ClientHandler(clientSocket);
+                    clients.add(handler);
                     Thread newclient = new Thread(handler);
                     newclient.start();
                     System.out.println("New client connected at " + clientSocket.getRemoteSocketAddress());

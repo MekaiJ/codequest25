@@ -8,7 +8,7 @@ class ClientHandler implements Runnable {
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
-    private Object update;
+    private Object update = null;
 
     ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
@@ -21,7 +21,8 @@ class ClientHandler implements Runnable {
         try {
             while (true) {
                 Object fromClient = this.in.readObject();
-                this.update = fromClient;
+                //System.out.println("Recieving From CLient");
+                update = fromClient;
             }
         }catch (Exception e) {}
     }
@@ -37,6 +38,6 @@ class ClientHandler implements Runnable {
     }
 
     void wipeUpdate() {
-        this.update = null;
+        update = null;
     }
 }

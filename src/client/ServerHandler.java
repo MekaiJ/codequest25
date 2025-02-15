@@ -15,7 +15,8 @@ class ServerHandler implements Runnable {
         this.serverConnection = socket;
         this.out = new ObjectOutputStream(socket.getOutputStream());
         this.in = new ObjectInputStream(socket.getInputStream());
-        this.mainRocket = otherRocket;
+        this.mainRocket = mainRocket;
+        this.otherRocket = new Rocket(RocketLevel.LEVEL_1);
     }
 
     @Override
@@ -23,8 +24,11 @@ class ServerHandler implements Runnable {
         try {
             while(true) {
                 Object fromServer = this.in.readObject();
-                if(fromServer instanceof Rocket) {
-                    otherRocket = (Rocket) fromServer;
+                if(fromServer instanceof RocketData) {
+                    System.out.println("recieving from server: " + ((RocketData) fromServer).x + " " + ((RocketData) fromServer).y + " " + ((RocketData) fromServer).level);
+                    otherRocket.setX(((RocketData) fromServer).x);
+                    otherRocket.setY(((RocketData) fromServer).y);
+                    otherRocket.setLevel(((RocketData) fromServer).level);
                 }
             }
         }catch (IOException e) {
@@ -38,5 +42,9 @@ class ServerHandler implements Runnable {
         this.out.reset();
         this.out.writeObject(toWrite);
         this.out.flush();
+    }
+
+    Rocket getOtherRocket() {
+        return this.otherRocket;
     }
 }

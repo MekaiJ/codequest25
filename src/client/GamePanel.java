@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import static client.Client.serverHandler;
+
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int velocityY = 0;  // Vertical speed
     private boolean thrust = false;
@@ -37,6 +39,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         // Draw rocket
         g.setColor(Color.RED);
         g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
+        if(serverHandler != null) {
+            Rocket other = serverHandler.getOtherRocket();
+            g.setColor(Color.GREEN);
+            g.fillRect(other.getX(), other.getY(), 50, 80);
+        }
 
         // Draw landing pad
         g.setColor(Color.BLUE);
