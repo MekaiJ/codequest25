@@ -3,15 +3,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import static client.Client.serverHandler;
-
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
-    private int velocityY = 0;  // Vertical speed
+    private int velocityY = 0;// Vertical speed
+    private int velocityX = 0;// Horizontal speed
     private boolean thrust = false;
+    private boolean xThrustLeft = false;
+    private boolean xThrustRight = false;
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private int worldHeight = 200000; // World height
-    private Rectangle startingPlatform = new Rectangle(175, 0, 150, 10); // Landing pad
+    private Rectangle startingPlatform = new Rectangle(100, -300, 600, 250);// Landing pad
     private int MAX_UP_VELOCITY = -45;
     private int MAX_DOWN_VELOCITY = 45;
     private int THRUST_POWER = 2;
@@ -20,10 +21,16 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private boolean onPlatform = true;
     private int durability = 100;
 
+    private Image backgroundImage;
+    private Image launchpadTexture;
+
     public GamePanel() {
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
+
+        backgroundImage = new ImageIcon("src/client/resources/cloudsbackground.jpg").getImage();
+        launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
 
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
@@ -34,20 +41,37 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(0, cameraY);
 
-        // Draw rocket
-        g.setColor(Color.RED);
-        g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
-        if(serverHandler != null) {
-            Rocket other = serverHandler.getOtherRocket();
-            g.setColor(Color.GREEN);
-            g.fillRect(other.getX(), other.getY(), 50, 80);
+        // Draw the background image
+        if (backgroundImage != null) {
+            g2d.drawImage(backgroundImage, 0, cameraY, getWidth(), getHeight(), null);
         }
 
-        // Draw landing pad
-        g.setColor(Color.BLUE);
-        g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
+        g2d.translate(0, cameraY);
+
+        // Draw rocket texture
+        ImageIcon rocketTexture = Client.mainRocket.getTexture();
+        if (rocketTexture != null) {
+            rocketTexture.paintIcon(this, g, Client.mainRocket.getX(), Client.mainRocket.getY());
+        } else {
+            // Fallback: Draw a red rectangle if no texture is loaded
+            g.setColor(Color.RED);
+            g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
+        }
+
+        // Draw launchpad texture
+        if (launchpadTexture != null) {
+            g.drawImage(
+                    launchpadTexture,
+                    startingPlatform.x, startingPlatform.y,
+                    startingPlatform.width, startingPlatform.height,
+                    null
+            );
+        } else {
+            // Fallback: Draw a blue rectangle if no texture is loaded
+            g.setColor(Color.BLUE);
+            g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
+        }
 
         g2d.translate(0, -cameraY);
 
@@ -113,9 +137,16 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
                 velocityY += DECELRATION;
         }
 
+        if (xThrustLeft) {
+            Client.mainRocket.setX(Client.mainRocket.getX() - 5);
+        }
+        if (xThrustRight) {
+            Client.mainRocket.setX(Client.mainRocket.getX() + 5);
+        }
+
         velocityY += 1; // Simulate gravity
 
-        if (onPlatform && Client.mainRocket.getY() + 80 >= startingPlatform.y) {
+        if (Client.mainRocket.getY() < startingPlatform.y - 80) {
             Client.mainRocket.setY(startingPlatform.y - 80);
             velocityY = 0;
         }
@@ -153,9 +184,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
             thrust = true;
         } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
-            Client.mainRocket.setX(Client.mainRocket.getX() - 15);
+            xThrustLeft = true;
         } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            Client.mainRocket.setX(Client.mainRocket.getX() + 15);
+            xThrustRight = true;
         }
     }
 
@@ -163,6 +194,10 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
             thrust = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
+            xThrustLeft = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            xThrustRight = false;
         }
     }
 

@@ -16,8 +16,8 @@ public class Rocket implements Serializable {
 
     private int fuel;
 
-    private int x;
-    private int y;
+    int x;
+    int y;
 
     private int xp;
     private int xpToLevelUp;
@@ -43,10 +43,21 @@ public class Rocket implements Serializable {
         if (this.fuel > level.getFuelCap()) this.fuel = level.getFuelCap();
     }
 
-    // Method to load the rocket image based on the level
-    private ImageIcon loadRocketImage(RocketLevel level) {
-        String imagePath = "resources/rocket_level" + (level.ordinal() + 1) + ".png";
+    public ImageIcon loadRocketImage(RocketLevel level) {
+        String imagePath = "src/client/resources/rocket_level" + (level.ordinal() + 1) + ".png";
         ImageIcon icon = new ImageIcon(imagePath);
+
+        // Check if the image was loaded successfully
+        if (icon.getImageLoadStatus() != MediaTracker.COMPLETE) {
+            System.err.println("Failed to load image: " + imagePath);
+            // Create a fallback image (e.g., a red rectangle)
+            Image fallbackImage = new BufferedImage(50, 80, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = (Graphics2D) fallbackImage.getGraphics();
+            g2d.setColor(Color.RED);
+            g2d.fillRect(0, 0, 100, 100);
+            g2d.dispose();
+            icon = new ImageIcon(fallbackImage);
+        }
 
         // Scale the image to 100x100 pixels
         Image image = icon.getImage();
@@ -138,8 +149,5 @@ public class Rocket implements Serializable {
 
     public void setY(int y) {
         this.y = y;
-    }
-    public void setLevel(RocketLevel level) {
-        this.level = level;
     }
 }
