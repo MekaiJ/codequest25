@@ -4,8 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
-    private int rocketX = 225;  // Initial X position
-    private int rocketY = 500;  // Initial Y position
+    private int rocketX = Client.mainRocket.getX();  // Initial X position
+    private int rocketY = Client.mainRocket.getY();  // Initial Y position
     private int velocityY = 0;  // Vertical speed
     private boolean thrust = false;
     private Timer timer;
