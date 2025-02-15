@@ -7,10 +7,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Client {
-    public static ServerHandler handleServerConnection() throws IOException {
+    public static ServerHandler handleServerConnection(Rocket mainRocket) throws IOException {
         Socket serverSocket = new Socket("10.104.160.41", 8888);
         System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
-        ServerHandler serverHandler = new ServerHandler(serverSocket);
+        ServerHandler serverHandler = new ServerHandler(serverSocket, mainRocket);
         Thread serverThread = new Thread(serverHandler);
         serverThread.start();
         return serverHandler;
