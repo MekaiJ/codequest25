@@ -12,21 +12,19 @@ public class Rocket implements Serializable {
 
     private String name;
 
-    private int level;
+    private int fuel;
 
-    public Rocket(int handling, int durability, String name, int level) {
-        this.handling = handling;
-        this.durability = durability;
-        this.name = name;
+    private RocketLevel level;
+
+    public Rocket(RocketLevel level) {
         this.level = level;
     }
 
-    private void setStats() {
-        if(this.getLevel() == 1) {
-            this.handling  = 3;
-            this.durability = 3;
-            this.name = "Rust Bucket";
-        }
+    private void setStats(RocketLevel level) {
+        this.handling = level.getHandling();
+        this.durability = level.getDurability();
+        this.name = level.getName();
+        this.level = level;
     }
 
     public String getName() {
@@ -41,7 +39,7 @@ public class Rocket implements Serializable {
         return durability;
     }
 
-    public int getLevel() {
+    public RocketLevel getLevel() {
         return level;
     }
 
