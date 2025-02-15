@@ -7,8 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Client {
-
-
     public static ServerHandler handleServerConnection() throws IOException {
         Socket serverSocket = new Socket("10.104.160.41", 8888);
         System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
@@ -18,27 +16,11 @@ public class Client {
         return serverHandler;
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         ServerHandler serverHandler = null;
 
         int currentTick = 0;
-        while(true) {
-            Thread.sleep(16);
-            currentTick++;
-
-            if(serverHandler == null) {
-                try {
-                    serverHandler = handleServerConnection();
-                }catch(Exception e) {
-                    if(currentTick % 60 == 0) {
-                        System.out.println("Attempting To Connect To Server");
-                    }
-                }
-            }else {
-                //Game loop code goes here:
-            }
-        }
-
+        Rocket mainRocket = new Rocket(1);
         JFrame frame = new JFrame("Rocket Game");
         frame.setSize(500, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,6 +30,24 @@ public class Client {
         frame.add(panel);
         frame.setVisible(true);
 
+        while(true) {
+            Thread.sleep(16);
+            currentTick++;
+            if(serverHandler == null) {
+                try {
+                    serverHandler = handleServerConnection();
+                }catch(Exception e) {
+                    if(currentTick % 60 == 0) {
+                        System.out.println("Attempting To Connect To Server");
+                    }
+                }
+            }else {
+                if(currentTick % 2 == 0) {
+                    serverHandler.writeToServer(mainRocket);
+                }
 
+                //Game loop code goes here:
+            }
+        }
     }
 }

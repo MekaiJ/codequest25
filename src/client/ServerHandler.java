@@ -9,11 +9,13 @@ class ServerHandler implements Runnable {
     private Socket serverConnection;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private Rocket mainRocket, otherRocket;
 
-    ServerHandler(Socket socket) throws IOException {
+    ServerHandler(Socket socket, Rocket mainRocket) throws IOException {
         this.serverConnection = socket;
         this.out = new ObjectOutputStream(socket.getOutputStream());
         this.in = new ObjectInputStream(socket.getInputStream());
+        this.mainRocket = otherRocket;
     }
 
     @Override
@@ -22,7 +24,7 @@ class ServerHandler implements Runnable {
             while(true) {
                 Object fromServer = this.in.readObject();
                 if(fromServer instanceof Rocket) {
-
+                    otherRocket = (Rocket) fromServer;
                 }
             }
         }catch (IOException e) {
