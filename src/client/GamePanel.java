@@ -16,6 +16,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int MAX_DOWN_VELOCITY = 200;
     private int THRUST_POWER = 2;
     private int DECELRATION = 1;
+    private boolean isOnLandingPad = false;
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -59,6 +60,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
                 velocityY += DECELRATION;
         }
 
+
         velocityY += 1; // Simulate gravity
 
         if (velocityY < MAX_UP_VELOCITY)
@@ -79,7 +81,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         // Check if rocket lands on the pad
         if (new Rectangle(rocketX, rocketY, 50, 80).intersects(landingPad)) {
-            velocityY = 0;
+            isOnLandingPad = true;
         }
 
         repaint();
@@ -105,7 +107,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if (e.getKeyCode() == KeyEvent.VK_W) {
             thrust = false;
         }
     }
