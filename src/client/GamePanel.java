@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
-    private int rocketX = Client.mainRocket.getX();  // Initial X position
-    private int rocketY = Client.mainRocket.getY();  // Initial Y position
     private int velocityY = 0;  // Vertical speed
     private boolean thrust = false;
     private Timer timer;
@@ -38,7 +36,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         // Draw rocket
         g.setColor(Color.RED);
-        g.fillRect(rocketX, rocketY, 50, 80);
+        g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
 
         // Draw landing pad
         g.setColor(Color.BLUE);
@@ -56,7 +54,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         // Display velocity, height, and fuel as text
         g.drawString("Velocity: " + -(velocityY) + " px/s", 20, 30);
-        g.drawString("Height: " + -(rocketY + 80) + " px", 20, 50);
+        g.drawString("Height: " + -(Client.mainRocket.getY() + 80) + " px", 20, 50);
         g.drawString("Fuel:", 20, 625);
         g.drawString("Durability: ", 20, 650);
 
@@ -110,8 +108,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         velocityY += 1; // Simulate gravity
 
-        if (onPlatform && rocketY + 80 >= startingPlatform.y) {
-            rocketY = startingPlatform.y - 80;
+        if (onPlatform && Client.mainRocket.getY() + 80 >= startingPlatform.y) {
+            Client.mainRocket.setY(startingPlatform.y - 80);
             velocityY = 0;
         }
 
@@ -120,14 +118,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (velocityY > MAX_DOWN_VELOCITY)
             velocityY = MAX_DOWN_VELOCITY;
 
-        rocketY += velocityY;
+        Client.mainRocket.setY(Client.mainRocket.getY() + velocityY);
 
         // Update Camera
-        cameraY = -(rocketY - getHeight() / 2);
+        cameraY = -(Client.mainRocket.getY() - getHeight() / 2);
 
         // Prevent rocket from going off-screen
-        if (rocketY > worldHeight - 80) {
-            rocketY = worldHeight - 80;
+        if (Client.mainRocket.getY() > worldHeight - 80) {
+            Client.mainRocket.setY(worldHeight - 80);
             velocityY = 0;
         }
 
@@ -135,8 +133,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     }
 
     private void resetGame() {
-        rocketX = 225;
-        rocketY = 0;
+        Client.mainRocket.setX(225);
+        Client.mainRocket.setY(0);
         velocityY = 0;
         cameraY = 0;
         fuelCapacity = Client.mainRocket.getFuel();
@@ -148,9 +146,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
             thrust = true;
         } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
-            rocketX -= 15;
+            Client.mainRocket.setX(Client.mainRocket.getX() - 15);
         } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            rocketX += 15;
+            Client.mainRocket.setX(Client.mainRocket.getX() + 15);
         }
     }
 
