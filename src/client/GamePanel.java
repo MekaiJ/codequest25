@@ -9,9 +9,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int velocityY = 0;  // Vertical speed
     private boolean thrust = false;
     private Timer timer;
-
-    // Landing pad
-    private Rectangle landingPad = new Rectangle(200, 600, 100, 10);
+    private int cameraY = 0; // Camera Offset
+    private int worldHeight = 2000; // World height
+    private Rectangle landingPad = new Rectangle(200, 600, 100, 10); // Landing pad
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -26,6 +26,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.translate(0, cameraY);
+
         // Draw rocket
         g.setColor(Color.RED);
         g.fillRect(rocketX, rocketY, 50, 80);
@@ -38,14 +41,16 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (thrust) {
-            velocityY -= 4; // Move up when thrusting
+            velocityY -= 2; // Move up when thrusting
         }
         velocityY += 1; // Simulate gravity
         rocketY += velocityY;
 
+        // Update Camera
+        cameraY = -(rocketY - getHeight() / 2);
         // Prevent rocket from going off-screen
-        if (rocketY > getHeight() - 80) {
-            rocketY = getHeight() - 80;
+        if (rocketY > worldHeight - 80) {
+            rocketY = worldHeight - 80;
             velocityY = 0;
         }
 
@@ -66,16 +71,17 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         rocketX = 225;
         rocketY = 0;
         velocityY = 0;
+        cameraY = 0;
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if (e.getKeyCode() == KeyEvent.VK_W) {
             thrust = true;
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            rocketX -= 10;
-        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            rocketX += 10;
+        } else if (e.getKeyCode() == KeyEvent.VK_A) {
+            rocketX -= 15;
+        } else if (e.getKeyCode() == KeyEvent.VK_D) {
+            rocketX += 15;
         }
     }
 
