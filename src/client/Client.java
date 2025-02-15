@@ -1,6 +1,7 @@
 package client;
-
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 public class Client {
     public void handleServerConnection() {
@@ -9,16 +10,22 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        // Create the frame (window)
-        JFrame frame = new JFrame("Swing Example");
+
+        // --- Variables ---
+        int rocketX = 225;
+        int rocketY = 500;
+        int velocityY = 0;
+        boolean thrust = false;
+        Timer timer = new Timer(30, e -> {});
+        JFrame frame = new JFrame("Rocket Game");
+        frame.setSize(500, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 200);
+        frame.setResizable(false);
 
-        // Create a label and add it to the frame
-        JLabel label = new JLabel("Hello, Swing!");
-        frame.add(label);
-
-        // Make the frame visible
+        GamePanel panel = new GamePanel();
+        frame.add(panel);
         frame.setVisible(true);
+
+
     }
 }
