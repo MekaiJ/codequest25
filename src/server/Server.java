@@ -9,10 +9,9 @@ import java.util.ArrayList;
 
 public class Server {
     private static ServerSocket serverSocket;
-    private static ArrayList<ClientHandler> clients;
 
-    public static void main(String[] args) throws IOException {
-        clients = new ArrayList<>();
+    public static void main(String[] args) throws IOException, InterruptedException {
+        ArrayList<ClientHandler> clients = new ArrayList<>();
         serverSocket = new ServerSocket(8888);
         System.out.println("Server started on port: " + serverSocket.getLocalPort());
 
@@ -20,6 +19,16 @@ public class Server {
         Thread incomingClients = new Thread(clientListener);
         incomingClients.start();
 
+        while(true) {
+            for(int i = 0; i < clients.size(); i++) {
+                ClientHandler client = clients.get(i);
+                if(client.getUpdate() != null) {
+                    clients.get((i == 0) ? 1 : 0).writeToClient(client.getUpdate());
+                    client.wipeUpdate();
+                }
+            }
+            Thread.sleep(2);
+        }
     }
 
     static class AcceptIncomingClients implements Runnable {
@@ -30,15 +39,21 @@ public class Server {
 
         @Override
         public void run(){
-            while (true) {
-                try {
+            try {
+                while (true) {
                     Socket clientSocket = serverSocket.accept();
+                    if(clients.size() > 1) {
+                        System.out.println("Refused Connection. 2 clients already connected");
+                        clientSocket.close();
+                        continue;
+                    }
                     ClientHandler handler = new ClientHandler(clientSocket);
                     Thread newclient = new Thread(handler);
-
-                }catch(IOException e) {
-                    e.printStackTrace();
+                    newclient.start();
+                    System.out.println("New client connected at " + clientSocket.getRemoteSocketAddress());
                 }
+            }catch(IOException e) {
+                e.printStackTrace();
             }
         }
     }
