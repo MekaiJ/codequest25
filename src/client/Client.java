@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
-import static client.PlayMultipleMP3.playMP3;
 
 public class Client {
     public static ServerHandler handleServerConnection(Rocket mainRocket) throws IOException {
-        //System.out.println(readFirstToken("src/client/resources/serverIP.txt"));
         Socket serverSocket = new Socket(readFirstToken("src/client/resources/serverIP.txt"), 8888);
         System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
         ServerHandler serverHandler = new ServerHandler(serverSocket, mainRocket);
@@ -21,8 +18,8 @@ public class Client {
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        ArrayList<String> mp3Files = new ArrayList<>();  // Replace with actual file paths
-        mp3Files.add("src/client/resources/themeSong.wav");
+        String[] audioFiles = {"src/client/resources/song.wav"};  // Replace with actual file paths
+           //audioFiles.add("src/client/resources/themeSong.wav");
 
         ServerHandler serverHandler = null;
 
@@ -36,6 +33,7 @@ public class Client {
         GamePanel panel = new GamePanel();
         frame.add(panel);
         frame.setVisible(true);
+        PlayMultipleWAV.playAudio("src/client/resources/song.wav");
 
         while(true) {
             Thread.sleep(16);
@@ -54,7 +52,7 @@ public class Client {
                 }
 
                 //Game loop code goes here:
-                gameLoop(currentTick, mp3Files);
+                gameLoop(currentTick);
             }
         }
     }
@@ -69,8 +67,8 @@ public class Client {
         }
         return null; // Return null if the file is empty or not found
     }
+//, ArrayList<String> mp3Files
+    static void gameLoop(int currentTick) {
 
-    static void gameLoop(int currentTick, ArrayList<String> mp3Files) {
-        playMP3(mp3Files);
     }
 }
