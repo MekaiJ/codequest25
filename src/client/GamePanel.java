@@ -19,10 +19,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private boolean onPlatform = true;
     private int durability = 100;
 
+    private Image backgroundImage;
+
     public GamePanel() {
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
+
+        backgroundImage = new ImageIcon("src/client/resources/cloudsbackground.jpg").getImage();
 
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
@@ -33,11 +37,23 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
+
+        // Draw the background image
+        if (backgroundImage != null) {
+            g2d.drawImage(backgroundImage, 0, cameraY, getWidth(), getHeight(), null);
+        }
+
         g2d.translate(0, cameraY);
 
-        // Draw rocket
-        g.setColor(Color.RED);
-        g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
+        // Draw rocket texture
+        ImageIcon rocketTexture = Client.mainRocket.getTexture();
+        if (rocketTexture != null) {
+            rocketTexture.paintIcon(this, g, Client.mainRocket.getX(), Client.mainRocket.getY());
+        } else {
+            // Fallback: Draw a red rectangle if no texture is loaded
+            g.setColor(Color.RED);
+            g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
+        }
 
         // Draw landing pad
         g.setColor(Color.BLUE);
