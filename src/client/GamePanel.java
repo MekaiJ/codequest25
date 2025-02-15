@@ -7,6 +7,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int velocityY = 0;// Vertical speed
     private int velocityX = 0;// Horizontal speed
     private boolean thrust = false;
+    private boolean xThrustLeft = false;
+    private boolean xThrustRight = false;
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private int worldHeight = 200000; // World height
@@ -135,9 +137,16 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
                 velocityY += DECELRATION;
         }
 
+        if (xThrustLeft) {
+            Client.mainRocket.setX(Client.mainRocket.getX() - 5);
+        }
+        if (xThrustRight) {
+            Client.mainRocket.setX(Client.mainRocket.getX() + 5);
+        }
+
         velocityY += 1; // Simulate gravity
 
-        if (onPlatform && Client.mainRocket.getY() + 80 >= startingPlatform.y) {
+        if (Client.mainRocket.getY() < startingPlatform.y - 80) {
             Client.mainRocket.setY(startingPlatform.y - 80);
             velocityY = 0;
         }
@@ -175,9 +184,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
             thrust = true;
         } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
-            Client.mainRocket.setX(Client.mainRocket.getX() - 15);
+            xThrustLeft = true;
         } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            Client.mainRocket.setX(Client.mainRocket.getX() + 15);
+            xThrustRight = true;
         }
     }
 
@@ -185,6 +194,10 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
             thrust = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
+            xThrustLeft = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            xThrustRight = false;
         }
     }
 
