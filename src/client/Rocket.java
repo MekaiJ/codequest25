@@ -81,6 +81,10 @@ public class Rocket implements Serializable {
         return durability;
     }
 
+    public int getFuel() {
+        return fuel;
+    }
+
     public RocketLevel getLevel() {
         return level;
     }
