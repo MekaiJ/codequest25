@@ -1,14 +1,18 @@
 package client;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import static client.PlayMultipleMP3.playMP3;
 
 public class Client {
     public static ServerHandler handleServerConnection(Rocket mainRocket) throws IOException {
-        Socket serverSocket = new Socket("10.104.160.41", 8888);
+        //System.out.println(readFirstToken("src/client/resources/serverIP.txt"));
+        Socket serverSocket = new Socket(readFirstToken("src/client/resources/serverIP.txt"), 8888);
         System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
         ServerHandler serverHandler = new ServerHandler(serverSocket, mainRocket);
         Thread serverThread = new Thread(serverHandler);
@@ -17,6 +21,9 @@ public class Client {
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
+        ArrayList<String> mp3Files = new ArrayList<>();  // Replace with actual file paths
+        mp3Files.add("src/client/resources/themeSong.wav");
+
         ServerHandler serverHandler = null;
 
         int currentTick = 0;
@@ -47,13 +54,23 @@ public class Client {
                 }
 
                 //Game loop code goes here:
-                gameLoop(currentTick);
+                gameLoop(currentTick, mp3Files);
             }
         }
     }
 
-    static void gameLoop(int currentTick) {
-
+    public static String readFirstToken(String filePath) {
+        try (Scanner scanner = new Scanner(new File(filePath))) {
+            if (scanner.hasNext()) {
+                return scanner.next();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if the file is empty or not found
     }
 
+    static void gameLoop(int currentTick, ArrayList<String> mp3Files) {
+        playMP3(mp3Files);
+    }
 }
