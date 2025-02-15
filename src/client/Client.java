@@ -35,7 +35,7 @@ public class Client {
             currentTick++;
             if(serverHandler == null) {
                 try {
-                    serverHandler = handleServerConnection();
+                    serverHandler = handleServerConnection(mainRocket);
                 }catch(Exception e) {
                     if(currentTick % 60 == 0) {
                         System.out.println("Attempting To Connect To Server");
