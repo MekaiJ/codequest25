@@ -17,11 +17,25 @@ public class Rocket implements Serializable {
     private int xp;
     private int xpToLevelUp;
 
+    private ImageIcon texture;
+
     private RocketLevel level;
 
     public Rocket(RocketLevel level) {
         this.level = level;
         this.xp = 0;
+        this.texture = loadRocketImage(level);
+    }
+
+    // Method to load the rocket image based on the level
+    private ImageIcon loadRocketImage(RocketLevel level) {
+        String imagePath = "resources/rocket_level" + (level.ordinal() + 1) + ".png";
+        return new ImageIcon(imagePath);
+    }
+
+    // Method to get the rocket image
+    public ImageIcon getTexture() {
+        return texture;
     }
 
     private void setStats(RocketLevel level) {
