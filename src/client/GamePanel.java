@@ -17,6 +17,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int THRUST_POWER = 2;
     private int DECELRATION = 1;
     private boolean isOnLandingPad = false;
+    private int fuelCapacity = 1000;
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -47,17 +48,24 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         // Information
         g.setColor(Color.WHITE);
         g.setFont(new Font("Times Roman", Font.BOLD, 12));
-        g.drawString("Height: " + (worldHeight - rocketY), 20, 20);
+        g.drawString("Height: " + -rocketY, 20, 20);
         g.drawString("Velocity: " + -velocityY, 20, 40);
+        g.drawString("Fuel: " + fuelCapacity, 20, 60);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (thrust)
-            velocityY -= THRUST_POWER; // Move up when thrusting
+        if (thrust && fuelCapacity > 0) {
+            velocityY -= THRUST_POWER;// Move up when thrusting
+            fuelCapacity -= 1;
+        }
         else {
             if (velocityY < 0)
                 velocityY += DECELRATION;
+        }
+
+        while (isOnLandingPad) {
+            rocketY = 0;
         }
 
 
