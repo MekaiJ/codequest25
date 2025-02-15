@@ -47,7 +47,13 @@ public class Client {
                 }
 
                 //Game loop code goes here:
+                gameLoop(currentTick);
             }
         }
     }
+
+    static void gameLoop(int currentTick) {
+
+    }
+
 }
