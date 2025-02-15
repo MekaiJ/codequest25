@@ -21,7 +21,7 @@ public class Client {
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        String[] audioFiles = {"src/client/resources/song.wav"};  // Replace with actual file paths
+        //String[] audioFiles = {"src/client/resources/song.wav"};  // Replace with actual file paths
            //audioFiles.add("src/client/resources/themeSong.wav");
 
         ServerHandler serverHandler = null;
@@ -35,7 +35,7 @@ public class Client {
         GamePanel panel = new GamePanel();
         frame.add(panel);
         frame.setVisible(true);
-        PlayMultipleWAV.playAudio("src/client/resources/song.wav");
+       // PlayMultipleWAV.playAudio("src/client/resources/song.wav");
 
         while(true) {
             Thread.sleep(16);
