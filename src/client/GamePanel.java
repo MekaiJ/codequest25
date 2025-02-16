@@ -15,8 +15,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256); // Landing pad
-    private int MAX_UP_VELOCITY = -10; // Reduced max speed for smoother scrolling
-    private int MAX_DOWN_VELOCITY = 10; // Reduced max speed for smoother scrolling
+    private int MAX_UP_VELOCITY = -20; // Reduced max speed for smoother scrolling
+    private int MAX_DOWN_VELOCITY = 20; // Reduced max speed for smoother scrolling
     private int THRUST_POWER = 1; // Reduced thrust power for slower movement
     private int fuelCapacity = 100000;
     private int durability = 100;
@@ -57,7 +57,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         for (int i = 0; i < 5; i++) {
             int x = random.nextInt(400);
-            int y = random.nextInt(600);
+            int y = random.nextInt(400) - 500;
             int size = 30 + random.nextInt(20); // Smaller than rocket
             asteroids.add(new Asteroid(x, y, size, size));
         }
@@ -256,11 +256,27 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             }
         }
 
+        checkCollisions();
         repaint();
         velocityY = tempVelocity;
 
         if (durability == 0) {
             resetGame();
+        }
+    }
+
+    private void checkCollisions() {
+        Rectangle rocketHitbox = new Rectangle(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
+        for (Asteroid asteroid : asteroids) {
+            Rectangle asteroidHitbox = new Rectangle(asteroid.getX(), asteroid.getY(), asteroid.getWidth(), asteroid.getHeight());
+            if (rocketHitbox.intersects(asteroidHitbox)) {
+                durability -= 10;
+                asteroid.setY(-random.nextInt(400) - 100); // Reset asteroid position
+                asteroid.setX(random.nextInt(400));
+                if (durability <= 0) {
+                    gameOver();
+                }
+            }
         }
     }
 
