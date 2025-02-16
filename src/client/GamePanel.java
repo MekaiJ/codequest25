@@ -6,22 +6,28 @@ import java.awt.event.*;
 import static client.Client.serverHandler;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
-    private int velocityY = 0;// Vertical speed
+    private int velocityY = 0; // Vertical speed
     private boolean thrust = false;
     private boolean xThrustLeft = false;
     private boolean xThrustRight = false;
     private Timer timer;
     private int cameraY = 0; // Camera Offset
-    private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256);// Landing pad
-    private int MAX_UP_VELOCITY = -45;
-    private int MAX_DOWN_VELOCITY = 45;
-    private int THRUST_POWER = 2;
-    private int fuelCapacity = 100;
+    private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256); // Landing pad
+    private int MAX_UP_VELOCITY = -10; // Reduced max speed for smoother scrolling
+    private int MAX_DOWN_VELOCITY = 10; // Reduced max speed for smoother scrolling
+    private int THRUST_POWER = 1; // Reduced thrust power for slower movement
+    private int fuelCapacity = 100000;
     private int durability = 100;
 
-    private Image backgroundImage;
+    private Image backgroundImage1; // First background image
+    private Image backgroundImage2; // Second background image
+    private Image backgroundImage3; // Third background image
+    private Image backgroundImageMoon; // Moon background image
+    private Image currentBackgroundImage; // Current background image
     private Image launchpadTexture;
     private Image asteroidImage;
+
+    private double backgroundScrollY = 0; // Tracks the vertical scroll position of the background
 
     Asteroid asteroid = new Asteroid(0, 300, 315, 250);
 
@@ -30,7 +36,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         setFocusable(true);
         addKeyListener(this);
 
-        backgroundImage = new ImageIcon("src/client/resources/cloudsbackground.jpg").getImage();
+        // Load background images
+        backgroundImage1 = new ImageIcon("src/client/resources/cloudsbackground.jpg").getImage();
+        backgroundImage2 = new ImageIcon("src/client/resources/spacebackground.png").getImage();
+        backgroundImage3 = new ImageIcon("src/client/resources/moon.png").getImage();
+        backgroundImageMoon = new ImageIcon("src/client/resources/moon.png").getImage();
+        currentBackgroundImage = backgroundImage1; // Set initial background
+
         launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
         asteroidImage = new ImageIcon("src/client/resources/asteriod.png").getImage();
 
@@ -44,26 +56,15 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        // Draw the tiled background image
-        if (backgroundImage != null) {
-            int imageWidth = backgroundImage.getWidth(null);
-            int imageHeight = backgroundImage.getHeight(null);
+        // Scale up the background images
+        double scaleFactor = 2.0; // Scale factor for the background images
+        g2d.scale(scaleFactor, scaleFactor);
 
-            // Calculate how many times to tile the image horizontally and vertically
-            int tilesX = (int) Math.ceil((double) getWidth() / imageWidth);
-            int tilesY = (int) Math.ceil((double) getHeight() / imageHeight);
+        // Draw the stacked background images
+        drawStackedBackground(g2d);
 
-            // Loop to draw the image in a tiled pattern
-            for (int i = 0; i < tilesX; i++) {
-                for (int j = 0; j < tilesY; j++) {
-                    g2d.drawImage(
-                            backgroundImage,
-                            i * imageWidth, j * imageHeight, // Position of each tile
-                            null
-                    );
-                }
-            }
-        }
+        // Reset scaling for other elements
+        g2d.scale(1 / scaleFactor, 1 / scaleFactor);
 
         g2d.translate(0, cameraY);
 
@@ -109,6 +110,24 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         g2d.translate(0, -cameraY);
 
         HUD(g);
+    }
+
+    private void drawStackedBackground(Graphics2D g2d) {
+        int imageHeight = backgroundImage1.getHeight(null);
+
+        // Calculate the number of images needed to cover the screen
+        int numImages = (int) Math.ceil(getHeight() / (imageHeight * 2.0)) + 1;
+
+        // Draw the stacked background images in reverse order
+        for (int i = 0; i < numImages; i++) {
+            int yPos = (int) (i * imageHeight * 2 - backgroundScrollY); // Adjust for scrolling
+
+            // Draw the images in reverse order
+            g2d.drawImage(backgroundImage1, 0, yPos, null); // Moon background at the bottom
+            g2d.drawImage(backgroundImage2, 0, yPos + imageHeight * 2, null); // Space background 2
+            g2d.drawImage(backgroundImage3, 0, yPos + imageHeight * 4, null); // Space background 1
+            g2d.drawImage(backgroundImageMoon, 0, yPos + imageHeight * 6, null); // Clouds background at the top
+        }
     }
 
     private void HUD(Graphics g) {
@@ -162,7 +181,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     public void actionPerformed(ActionEvent e) {
         int tempVelocity = velocityY;
         if (thrust && fuelCapacity > 0) {
-            tempVelocity -= THRUST_POWER;// Move up when thrusting
+            tempVelocity -= THRUST_POWER; // Move up when thrusting
             fuelCapacity -= 1;
         }
 
@@ -173,7 +192,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setX(Client.mainRocket.getX() + 5);
         }
 
-        if(Client.mainRocket.getY()  < - 79) {
+        if (Client.mainRocket.getY() < -79) {
             tempVelocity += 1;
         }
 
@@ -193,6 +212,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         // Update Camera
         cameraY = -(Client.mainRocket.getY() - getHeight() / 2);
 
+        // Scroll the background based on rocket movement
+        backgroundScrollY += velocityY * 0.1; // Adjust scrolling speed
+
         if (Client.mainRocket.getX() < -20)
             Client.mainRocket.setX(-20);
         if (Client.mainRocket.getX() > 425)
@@ -211,6 +233,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         Client.mainRocket.setY(0);
         velocityY = 0;
         cameraY = 0;
+        backgroundScrollY = 0; // Reset background scroll
         fuelCapacity = Client.mainRocket.getFuel();
         durability = Client.mainRocket.getDurability();
     }
@@ -240,4 +263,3 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     @Override
     public void keyTyped(KeyEvent e) {}
 }
-
