@@ -24,6 +24,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Image backgroundImage;
     private Image launchpadTexture;
 
+    private WAVPlayer thrustPlayer = new WAVPlayer();
+
     public GamePanel() {
         setBackground(Color.BLACK);
         setFocusable(true);
@@ -159,6 +161,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             tempVelocity -= THRUST_POWER;// Move up when thrusting
             fuelCapacity -= 1;
         }
+        if(fuelCapacity <= 0) {
+            thrustPlayer.stopAudio();
+        }
 
         if (xThrustLeft) {
             Client.mainRocket.setX(Client.mainRocket.getX() - 5);
@@ -208,6 +213,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
+            if(!thrust) {
+                new Thread(() -> thrustPlayer.playAudio("src/client/resources/thrust.wav", true)).start();
+            }
             thrust = true;
         } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
             xThrustLeft = true;
@@ -220,6 +228,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
             thrust = false;
+            thrustPlayer.stopAudio();
         } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
             xThrustLeft = false;
         } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {

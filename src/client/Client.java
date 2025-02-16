@@ -1,13 +1,10 @@
 package client;
 import javax.sound.sampled.*;
 import javax.swing.*;
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.io.IOException;
 import java.net.Socket;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.Scanner;
 
 public class Client {
@@ -39,7 +36,9 @@ public class Client {
         GamePanel panel = new GamePanel();
         frame.add(panel);
         frame.setVisible(true);
-        playAudio("src/client/resources/song.aiff");
+
+        WAVPlayer themeSong = new WAVPlayer();
+        new Thread(() -> themeSong.playAudio("src/client/resources/song.wav", true)).start();
 
         while(true) {
             Thread.sleep(16);
@@ -57,9 +56,6 @@ public class Client {
                     serverHandler.writeToServer(new RocketData(mainRocket.getX(), mainRocket.getY(), mainRocket.getLevel()));
                     //System.out.println("Sending to server: " + mainRocket.getX() + " " + mainRocket.getY()+ " " + mainRocket.getLevel());
                 }
-
-                //Game loop code goes here:
-                gameLoop(currentTick);
             }
         }
     }
@@ -74,10 +70,7 @@ public class Client {
         }
         return null; // Return null if the file is empty or not found
     }
-    //, ArrayList<String> mp3Files
-    static void gameLoop(int currentTick) {
 
-    }
     public static void playAudio(String filePath) {
         try {
             File audioFile = new File(filePath);
@@ -92,10 +85,14 @@ public class Client {
             clip.start();
 
             // Wait until the clip finishes playing
-            while (clip.isRunning()) {
+            while (true) {
+
+                if(!clip.isRunning()) {
+                    clip.close();
+                    break;
+                }
                 Thread.sleep(100);
             }
-            clip.close();
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
             e.printStackTrace();
         }
