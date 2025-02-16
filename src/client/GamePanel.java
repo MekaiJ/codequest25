@@ -159,10 +159,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             tempVelocity -= THRUST_POWER;// Move up when thrusting
             fuelCapacity -= 1;
         }
-        else {
-            if (velocityY < 0)
-                tempVelocity += DECELRATION;
-        }
 
         if (xThrustLeft) {
             Client.mainRocket.setX(Client.mainRocket.getX() - 5);
@@ -171,21 +167,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setX(Client.mainRocket.getX() + 5);
         }
 
-        if(Client.mainRocket.getY() < -90) {
+        if(Client.mainRocket.getY()  < -90) {
             tempVelocity += 1;
         }
 
-        if(Client.mainRocket.getY() > startingPlatform.height) {
+        if (Client.mainRocket.getY() > startingPlatform.y) {
             Client.mainRocket.setY(startingPlatform.y);
             tempVelocity = 0;
             thrust = false;
-        }
-
-        tempVelocity += 1; // Simulate graviy
-
-        if (Client.mainRocket.getY() > startingPlatform.y) {
-            Client.mainRocket.setY(startingPlatform.y);
-            tempVelocity = Math.round(0);
         }
 
         if (velocityY < MAX_UP_VELOCITY)
@@ -197,12 +186,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         // Update Camera
         cameraY = -(Client.mainRocket.getY() - getHeight() / 2);
-
-        // Prevent rocket from going off-screen
-        if (Client.mainRocket.getY() > worldHeight - 80) {
-            Client.mainRocket.setY(worldHeight - 80);
-            tempVelocity = 0;
-        }
 
         if (Client.mainRocket.getX() < -20)
             Client.mainRocket.setX(-20);
