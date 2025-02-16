@@ -27,6 +27,7 @@ public class Rocket implements Serializable {
     private RocketLevel level;
 
     public Rocket(RocketLevel level) {
+        setX(225);
         this.level = level;
         this.xp = 0;
         this.texture = loadRocketImage(level);
