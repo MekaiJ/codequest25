@@ -16,9 +16,9 @@ public class Asteroid extends Obstacle {
         // Check if the image was loaded successfully
         if (icon.getImageLoadStatus() != MediaTracker.COMPLETE) {
             System.err.println("Failed to load asteroid texture: " + imagePath);
-            return null; // Return null if the image fails to load
+            return null;
         }
 
-        return icon.getImage(); // Return the loaded image
+        return icon.getImage();
     }
 }

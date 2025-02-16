@@ -2,6 +2,8 @@ package client;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 import static client.Client.serverHandler;
 
@@ -13,11 +15,18 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256); // Landing pad
-    private int MAX_UP_VELOCITY = -15; // Reduced max speed for smoother scrolling
-    private int MAX_DOWN_VELOCITY = 15; // Reduced max speed for smoother scrolling
+    private int MAX_UP_VELOCITY = -10; // Reduced max speed for smoother scrolling
+    private int MAX_DOWN_VELOCITY = 10; // Reduced max speed for smoother scrolling
     private int THRUST_POWER = 1; // Reduced thrust power for slower movement
     private int fuelCapacity = 100000;
-    private boolean hitAstroid = false;
+    private int durability = 100;
+
+    private ArrayList<Asteroid> asteroids = new ArrayList<>();
+    private Random random = new Random();
+
+    private int asteroidSpeed = 5;
+    private boolean asteroidMovingRight = true;
+
 
     private Image backgroundImage1; // First background image
     private Image backgroundImage2; // Second background image
@@ -28,6 +37,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Image asteroidImage;
 
     private double backgroundScrollY = 0; // Tracks the vertical scroll position of the background
+
+    Asteroid asteroid = new Asteroid(0, 300, 315, 250);
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -40,10 +51,17 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         backgroundImage3 = new ImageIcon("src/client/resources/moon.png").getImage();
         backgroundImageMoon = new ImageIcon("src/client/resources/moon.png").getImage();
         currentBackgroundImage = backgroundImage1; // Set initial background
-        asteroidImage = new ImageIcon("src/client/resources/asteroid.png").getImage();
 
         launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
+        asteroidImage = new ImageIcon("src/client/resources/asteriod.png").getImage();
 
+        for (int i = 0; i < 5; i++) {
+            int x = random.nextInt(400);
+            int y = random.nextInt(600);
+            int size = 30 + random.nextInt(20); // Smaller than rocket
+            asteroids.add(new Asteroid(x, y, size, size));
+        }
+        new Timer(30, e -> moveAsteroids()).start();
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
     }
@@ -101,7 +119,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
         }
 
-        g.drawImage(asteroidImage, 0, -300, null);
+        for (Asteroid asteroid : asteroids) {
+            asteroid.draw(g);
+        }
 
         g2d.translate(0, -cameraY);
 
@@ -144,7 +164,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         int durabilityBarWidth = 150;
         int durabilityBarHeight = 15;
-        int durabilityFillWidth = (int) ((Client.mainRocket.getDurability() / 100.0) * Client.mainRocket.getDurability());
+        int durabilityFillWidth = (int) ((durability / 100.0) * durability);
 
         // Outline of the fuel bar
         g.setColor(Color.GRAY);
@@ -163,9 +183,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         g.setColor(Color.GRAY);
         g.fillRect(125, 639, durabilityFillWidth, durabilityBarHeight);
 
-        if (Client.mainRocket.getDurability() > 50) {
+        if (durability > 50) {
             g.setColor(Color.GREEN);
-        } else if (Client.mainRocket.getDurability() > 20) {
+        } else if (durability > 20) {
             g.setColor(Color.YELLOW);
         } else {
             g.setColor(Color.RED);
@@ -216,20 +236,32 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (Client.mainRocket.getX() > 425)
             Client.mainRocket.setX(425);
 
-        Rectangle asteroidHitbox = new Rectangle(100, -300, 100, 100);
-        Rectangle rocketHitBox = new Rectangle(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
-        if(!hitAstroid) {
-            if (rocketHitBox.intersects(asteroidHitbox)) {
-                Client.mainRocket.setDurability(Client.mainRocket.getDurability() - 1);
-                hitAstroid = true;
-                System.out.println("durability: " + Client.mainRocket.getDurability());
-                if (Client.mainRocket.getDurability() <= 0) {
-                    resetGame();
-                }
+        if (asteroidMovingRight) {
+            asteroid.setX(asteroid.getX() + asteroidSpeed);
+            if (asteroid.getX() >= getWidth() - asteroid.getWidth()) {
+                asteroidMovingRight = false;
+            }
+        } else {
+            asteroid.setX(asteroid.getX() - asteroidSpeed);
+            if (asteroid.getX() <= 0) {
+                asteroidMovingRight = true;
             }
         }
+
+// Randomly reposition asteroid vertically
+        if (Math.random() < 0.01) { // 1% chance each frame
+            int newY = (int) (Math.random() * (getHeight() - asteroid.getHeight()));
+            if (newY > 0) {
+                asteroid.setY(newY);
+            }
+        }
+
         repaint();
         velocityY = tempVelocity;
+
+        if (durability == 0) {
+            resetGame();
+        }
     }
 
     private void resetGame() {
@@ -238,8 +270,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         velocityY = 0;
         cameraY = 0;
         backgroundScrollY = 0; // Reset background scroll
-        fuelCapacity = 100;
-        Client.mainRocket.setDurability(100);
+        fuelCapacity = Client.mainRocket.getFuel();
+        durability = Client.mainRocket.getDurability();
     }
 
     @Override
@@ -264,6 +296,64 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         }
     }
 
+    private void gameOver() {
+        timer.stop();
+        JOptionPane.showMessageDialog(this, "Game Over! You hit an asteroid.");
+        resetGame();
+        timer.start();
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {}
+
+    private void moveAsteroids() {
+        for (Asteroid asteroid : asteroids) {
+            asteroid.setX(asteroid.getX() + asteroid.getSpeed());
+            asteroid.setY(asteroid.getY() + asteroid.getVerticalSpeed());
+
+            // Bounce horizontally
+            if (asteroid.getX() > getWidth() - asteroid.getWidth() || asteroid.getX() < 0) {
+                asteroid.setSpeed(-asteroid.getSpeed());
+            }
+
+            // Bounce vertically
+            if (asteroid.getY() > getHeight() - asteroid.getHeight() || asteroid.getY() < 0) {
+                asteroid.setVerticalSpeed(-asteroid.getVerticalSpeed());
+            }
+        }
+        repaint();
+    }
+
+    class Asteroid {
+        private int x, y, width, height, speed, verticalSpeed;
+
+        public Asteroid(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.speed = new Random().nextBoolean() ? 3 : -3;
+            this.verticalSpeed = new Random().nextBoolean() ? 2 : -2;
+        }
+
+        public void draw(Graphics g) {
+            g.setColor(Color.GRAY);
+            g.fillOval(x, y, width, height);
+        }
+
+        public int getX() { return x; }
+        public void setX(int x) { this.x = x; }
+
+        public int getY() { return y; }
+        public void setY(int y) { this.y = y; }
+
+        public int getWidth() { return width; }
+        public int getHeight() { return height; }
+
+        public int getSpeed() { return speed; }
+        public void setSpeed(int speed) { this.speed = speed; }
+
+        public int getVerticalSpeed() { return verticalSpeed; }
+        public void setVerticalSpeed(int verticalSpeed) { this.verticalSpeed = verticalSpeed; }
+    }
 }
