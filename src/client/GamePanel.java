@@ -94,8 +94,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         g.setFont(new Font("Comic Sans", Font.BOLD, 18));
 
         // Display velocity, height, and fuel as text
-        g.drawString("Velocity: " + -(velocityY) + " px/s", 20, 30);
-        g.drawString("Height: " + -(Client.mainRocket.getY()) + " px", 20, 50);
+        g.drawString("Velocity: " + -(velocityY) + " m/s", 20, 30);
+        g.drawString("Height: " + -(Client.mainRocket.getY()) + " m", 20, 50);
         g.drawString("Fuel:", 20, 625);
         g.drawString("Durability: ", 20, 650);
 
