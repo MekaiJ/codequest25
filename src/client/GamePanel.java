@@ -2,6 +2,8 @@ package client;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 import static client.Client.serverHandler;
 
@@ -18,6 +20,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int THRUST_POWER = 1; // Reduced thrust power for slower movement
     private int fuelCapacity = 100000;
     private int durability = 100;
+
+    private ArrayList<Asteroid> asteroids = new ArrayList<>();
+    private Random random = new Random();
+
+    private int asteroidSpeed = 5;
+    private boolean asteroidMovingRight = true;
+
 
     private Image backgroundImage1; // First background image
     private Image backgroundImage2; // Second background image
@@ -46,6 +55,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
         asteroidImage = new ImageIcon("src/client/resources/asteriod.png").getImage();
 
+        for (int i = 0; i < 5; i++) {
+            int x = random.nextInt(400);
+            int y = random.nextInt(600);
+            int size = 30 + random.nextInt(20); // Smaller than rocket
+            asteroids.add(new Asteroid(x, y, size, size));
+        }
+        new Timer(30, e -> moveAsteroids()).start();
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
     }
@@ -103,8 +119,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
         }
 
-        if (asteroidImage != null) {
-            g.drawImage(asteroidImage, asteroid.getX(), asteroid.getY(), null);
+        for (Asteroid asteroid : asteroids) {
+            asteroid.draw(g);
         }
 
         g2d.translate(0, -cameraY);
@@ -220,6 +236,26 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (Client.mainRocket.getX() > 425)
             Client.mainRocket.setX(425);
 
+        if (asteroidMovingRight) {
+            asteroid.setX(asteroid.getX() + asteroidSpeed);
+            if (asteroid.getX() >= getWidth() - asteroid.getWidth()) {
+                asteroidMovingRight = false;
+            }
+        } else {
+            asteroid.setX(asteroid.getX() - asteroidSpeed);
+            if (asteroid.getX() <= 0) {
+                asteroidMovingRight = true;
+            }
+        }
+
+// Randomly reposition asteroid vertically
+        if (Math.random() < 0.01) { // 1% chance each frame
+            int newY = (int) (Math.random() * (getHeight() - asteroid.getHeight()));
+            if (newY > 0) {
+                asteroid.setY(newY);
+            }
+        }
+
         repaint();
         velocityY = tempVelocity;
 
@@ -260,6 +296,64 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         }
     }
 
+    private void gameOver() {
+        timer.stop();
+        JOptionPane.showMessageDialog(this, "Game Over! You hit an asteroid.");
+        resetGame();
+        timer.start();
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {}
+
+    private void moveAsteroids() {
+        for (Asteroid asteroid : asteroids) {
+            asteroid.setX(asteroid.getX() + asteroid.getSpeed());
+            asteroid.setY(asteroid.getY() + asteroid.getVerticalSpeed());
+
+            // Bounce horizontally
+            if (asteroid.getX() > getWidth() - asteroid.getWidth() || asteroid.getX() < 0) {
+                asteroid.setSpeed(-asteroid.getSpeed());
+            }
+
+            // Bounce vertically
+            if (asteroid.getY() > getHeight() - asteroid.getHeight() || asteroid.getY() < 0) {
+                asteroid.setVerticalSpeed(-asteroid.getVerticalSpeed());
+            }
+        }
+        repaint();
+    }
+
+    class Asteroid {
+        private int x, y, width, height, speed, verticalSpeed;
+
+        public Asteroid(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.speed = new Random().nextBoolean() ? 3 : -3;
+            this.verticalSpeed = new Random().nextBoolean() ? 2 : -2;
+        }
+
+        public void draw(Graphics g) {
+            g.setColor(Color.GRAY);
+            g.fillOval(x, y, width, height);
+        }
+
+        public int getX() { return x; }
+        public void setX(int x) { this.x = x; }
+
+        public int getY() { return y; }
+        public void setY(int y) { this.y = y; }
+
+        public int getWidth() { return width; }
+        public int getHeight() { return height; }
+
+        public int getSpeed() { return speed; }
+        public void setSpeed(int speed) { this.speed = speed; }
+
+        public int getVerticalSpeed() { return verticalSpeed; }
+        public void setVerticalSpeed(int verticalSpeed) { this.verticalSpeed = verticalSpeed; }
+    }
 }
