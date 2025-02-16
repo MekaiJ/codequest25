@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static client.Client.mainRocket;
 import static client.Client.serverHandler;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
@@ -17,9 +18,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256); // Landing pad
     private int MAX_UP_VELOCITY = -20; // Reduced max speed for smoother scrolling
     private int MAX_DOWN_VELOCITY = 20; // Reduced max speed for smoother scrolling
-    private int THRUST_POWER = 1; // Reduced thrust power for slower movement
-    private int fuelCapacity = 100000;
-    private int durability = 100;
+    private int THRUST_POWER = 2; // Reduced thrust power for slower movement
 
     private ArrayList<Asteroid> asteroids = new ArrayList<>();
     private Random random = new Random();
@@ -41,6 +40,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     Asteroid asteroid = new Asteroid(0, 300, 315, 250);
 
     private WAVPlayer thrustPlayer = new WAVPlayer();
+    private WAVPlayer explosionPlayer = new WAVPlayer();
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -162,20 +162,20 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         // --- Draw Fuel Bar ---
         int fuelBarWidth = 150;
         int fuelBarHeight = 15;
-        int fuelFillWidth = (int) ((fuelCapacity / 100.0) * fuelBarWidth);
+        int fuelFillWidth = (int) ((mainRocket.getFuel() / 100.0) * fuelBarWidth);
 
         int durabilityBarWidth = 150;
         int durabilityBarHeight = 15;
-        int durabilityFillWidth = (int) ((durability / 100.0) * durability);
+        int durabilityFillWidth = (int) ((Client.mainRocket.getDurability() / 100.0) * Client.mainRocket.getDurability());
 
         // Outline of the fuel bar
         g.setColor(Color.GRAY);
         g.fillRect(70, 610, fuelBarWidth, fuelBarHeight);
 
         // Fill the fuel bar (changes color based on level)
-        if (fuelCapacity > 50) {
+        if (mainRocket.getFuel() > mainRocket.getLevel().getFuelCap() * 0.6) {
             g.setColor(Color.GREEN); // Green if fuel is above 50%
-        } else if (fuelCapacity > 20) {
+        } else if (mainRocket.getFuel() > mainRocket.getLevel().getFuelCap() * 0.3) {
             g.setColor(Color.YELLOW); // Yellow if fuel is 20-50%
         } else {
             g.setColor(Color.RED); // Red if fuel is below 20%
@@ -185,9 +185,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         g.setColor(Color.GRAY);
         g.fillRect(125, 639, durabilityFillWidth, durabilityBarHeight);
 
-        if (durability > 50) {
+        if (mainRocket.getDurability() > mainRocket.getLevel().getDurability() * 0.6) {
             g.setColor(Color.GREEN);
-        } else if (durability > 20) {
+        } else if (mainRocket.getDurability() > mainRocket.getLevel().getDurability() * 0.3) {
             g.setColor(Color.YELLOW);
         } else {
             g.setColor(Color.RED);
@@ -197,12 +197,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        int tempVelocity = velocityY;
-        if (thrust && fuelCapacity > 0) {
-            tempVelocity -= THRUST_POWER; // Move up when thrusting
-            fuelCapacity -= 1;
+        if (thrust && mainRocket.getFuel() > 0) {
+            velocityY -= THRUST_POWER; // Move up when thrusting
+            mainRocket.setFuel(mainRocket.getFuel() - 1);
         }
-        if(fuelCapacity <= 0) {
+        if(mainRocket.getFuel() <= 0 || !thrust) {
             thrustPlayer.stopAudio();
         }
 
@@ -213,20 +212,21 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setX(Client.mainRocket.getX() + 5);
         }
 
-        if (Client.mainRocket.getY() < -79) {
-            tempVelocity += 1;
+        if (Client.mainRocket.getY() < -3) {
+            velocityY += 1;
         }
 
         if (Client.mainRocket.getY() > startingPlatform.y) {
             Client.mainRocket.setY(startingPlatform.y);
-            tempVelocity = 0;
+            velocityY = 0;
             thrust = false;
+            System.out.println("Stopping");
         }
 
         if (velocityY < MAX_UP_VELOCITY)
-            tempVelocity = MAX_UP_VELOCITY;
+            velocityY = MAX_UP_VELOCITY;
         if (velocityY > MAX_DOWN_VELOCITY)
-            tempVelocity = MAX_DOWN_VELOCITY;
+            velocityY = MAX_DOWN_VELOCITY;
 
         Client.mainRocket.setY(Client.mainRocket.getY() + velocityY);
 
@@ -263,9 +263,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         checkCollisions();
         repaint();
-        velocityY = tempVelocity;
 
-        if (durability == 0) {
+        if (mainRocket.getDurability() == 0) {
             resetGame();
         }
     }
@@ -275,10 +274,12 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         for (Asteroid asteroid : asteroids) {
             Rectangle asteroidHitbox = new Rectangle(asteroid.getX(), asteroid.getY(), asteroid.getWidth(), asteroid.getHeight());
             if (rocketHitbox.intersects(asteroidHitbox)) {
-                durability -= 10;
+                thrustPlayer.stopAudio();
+                mainRocket.setDurability(mainRocket.getDurability() - 1);
                 asteroid.setY(-random.nextInt(400) - 100); // Reset asteroid position
                 asteroid.setX(random.nextInt(400));
-                if (durability <= 0) {
+                new Thread(() -> explosionPlayer.playAudio("src/client/resources/explosion.wav", false)).start();
+                if (mainRocket.getDurability() <= 0) {
                     gameOver();
                 }
             }
@@ -288,11 +289,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private void resetGame() {
         Client.mainRocket.setX(225);
         Client.mainRocket.setY(0);
+        thrust = false;
+        xThrustLeft = false;
+        xThrustRight = false;
         velocityY = 0;
         cameraY = 0;
         backgroundScrollY = 0; // Reset background scroll
-        fuelCapacity = Client.mainRocket.getFuel();
-        durability = Client.mainRocket.getDurability();
+        mainRocket.setFuel(Client.mainRocket.getLevel().getFuelCap());;
+        mainRocket.setDurability(Client.mainRocket.getLevel().getDurability());
     }
 
     @Override

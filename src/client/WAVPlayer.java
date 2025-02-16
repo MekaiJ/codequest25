@@ -37,9 +37,7 @@ public class WAVPlayer {
     public void stopAudio() {
         if (clip != null && clip.isRunning()) {
             clip.stop();  // Stop the playback
-            System.out.println("Audio stopped.");
-        } else {
-            System.out.println("No audio is currently playing.");
+            //System.out.println("Audio stopped.");
         }
     }
 }

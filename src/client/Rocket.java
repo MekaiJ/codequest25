@@ -27,7 +27,6 @@ public class Rocket implements Serializable {
     private RocketLevel level;
 
     public Rocket(RocketLevel level) {
-        setDurability(100);
         setX(225);
         this.level = level;
         this.xp = 0;
@@ -158,5 +157,8 @@ public class Rocket implements Serializable {
 
     public void setDurability(int durability) {
         this.durability = durability;
+    }
+    public void setFuel(int fuel) {
+        this.fuel = fuel;
     }
 }
