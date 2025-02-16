@@ -6,25 +6,25 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-
 public class Client {
 
     public static Rocket mainRocket = new Rocket(RocketLevel.LEVEL_1);
+    public static ServerHandler serverHandler = null;
+
 
     public static ServerHandler handleServerConnection(Rocket mainRocket) throws IOException {
         Socket serverSocket = new Socket(readFirstToken("src/client/resources/serverIP.txt"), 8888);
-        System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
         ServerHandler serverHandler = new ServerHandler(serverSocket, mainRocket);
         Thread serverThread = new Thread(serverHandler);
         serverThread.start();
+        System.out.println("Server Connected At IP: " + serverSocket.getRemoteSocketAddress());
         return serverHandler;
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
         //String[] audioFiles = {"src/client/resources/song.wav"};  // Replace with actual file paths
-           //audioFiles.add("src/client/resources/themeSong.wav");
+        //audioFiles.add("src/client/resources/themeSong.wav");
 
-        ServerHandler serverHandler = null;
 
         int currentTick = 0;
         JFrame frame = new JFrame("Rocket Game");
@@ -35,7 +35,7 @@ public class Client {
         GamePanel panel = new GamePanel();
         frame.add(panel);
         frame.setVisible(true);
-       // PlayMultipleWAV.playAudio("src/client/resources/song.wav");
+        // PlayMultipleWAV.playAudio("src/client/resources/song.wav");
 
         while(true) {
             Thread.sleep(16);
@@ -50,7 +50,8 @@ public class Client {
                 }
             }else {
                 if(currentTick % 2 == 0) {
-                    serverHandler.writeToServer(mainRocket);
+                    serverHandler.writeToServer(new RocketData(mainRocket.getX(), mainRocket.getY(), mainRocket.getLevel()));
+                    //System.out.println("Sending to server: " + mainRocket.getX() + " " + mainRocket.getY()+ " " + mainRocket.getLevel());
                 }
 
                 //Game loop code goes here:
@@ -69,7 +70,7 @@ public class Client {
         }
         return null; // Return null if the file is empty or not found
     }
-//, ArrayList<String> mp3Files
+    //, ArrayList<String> mp3Files
     static void gameLoop(int currentTick) {
 
     }
