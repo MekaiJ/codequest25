@@ -182,10 +182,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         int durabilityBarHeight = 15;
         int durabilityFillWidth = (int) ((mainRocket.getDurability() / 100.0) * mainRocket.getDurability());
 
-        // Outline of the fuel bar
-        g.setColor(Color.GRAY);
-        g.fillRect(70, 610, fuelBarWidth, fuelBarHeight);
-
         // Fill the fuel bar (changes color based on level)
         if (mainRocket.getFuel() > mainRocket.getLevel().getFuelCap() * 0.6) {
             g.setColor(Color.GREEN); // Green if fuel is above 50%
