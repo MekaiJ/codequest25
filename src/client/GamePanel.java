@@ -12,17 +12,18 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private boolean xThrustRight = false;
     private Timer timer;
     private int cameraY = 0; // Camera Offset
-    private int worldHeight = 200000; // World height
     private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256);// Landing pad
     private int MAX_UP_VELOCITY = -45;
     private int MAX_DOWN_VELOCITY = 45;
     private int THRUST_POWER = 2;
-    private int DECELRATION = 1;
     private int fuelCapacity = 100;
     private int durability = 100;
 
     private Image backgroundImage;
     private Image launchpadTexture;
+    private Image asteroidImage;
+
+    Asteroid asteroid = new Asteroid(0, 300, 315, 250);
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -31,6 +32,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         backgroundImage = new ImageIcon("src/client/resources/cloudsbackground.jpg").getImage();
         launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
+        asteroidImage = new ImageIcon("src/client/resources/asteriod.png").getImage();
 
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
@@ -100,6 +102,10 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
         }
 
+        if (asteroidImage != null) {
+            g.drawImage(asteroidImage, asteroid.getX(), asteroid.getY(), null);
+        }
+
         g2d.translate(0, -cameraY);
 
         HUD(g);
@@ -167,7 +173,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setX(Client.mainRocket.getX() + 5);
         }
 
-        if(Client.mainRocket.getY()  < -90) {
+        if(Client.mainRocket.getY()  < - 79) {
             tempVelocity += 1;
         }
 
@@ -194,6 +200,10 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         repaint();
         velocityY = tempVelocity;
+
+        if (durability == 0) {
+            resetGame();
+        }
     }
 
     private void resetGame() {

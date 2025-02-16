@@ -10,7 +10,7 @@ public class Asteroid extends Obstacle {
 
     // Method to load the asteroid texture
     private static Image loadTexture() {
-        String imagePath = "resources/asteroid.png"; // Path to the asteroid texture
+        String imagePath = "src/client/resources/asteroid.png"; // Path to the asteroid texture
         ImageIcon icon = new ImageIcon(imagePath);
 
         // Check if the image was loaded successfully
