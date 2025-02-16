@@ -1,4 +1,6 @@
 package client;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -22,10 +24,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int durability = 100;
 
     private ArrayList<Asteroid> asteroids = new ArrayList<>();
+    private ArrayList<FuelCanister> fuelCanisters = new ArrayList<>();
     private Random random = new Random();
 
     private int asteroidSpeed = 5;
     private boolean asteroidMovingRight = true;
+    private boolean fuelCanisterMovingRight = true;
+    private int fuelCanisterSpeed = 5;
 
 
     private Image backgroundImage1; // First background image
@@ -39,6 +44,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private double backgroundScrollY = 0; // Tracks the vertical scroll position of the background
 
     Asteroid asteroid = new Asteroid(0, 300, 315, 250);
+    FuelCanister fuelCanister = new FuelCanister(0, 300, 315, 250);
 
     private WAVPlayer thrustPlayer = new WAVPlayer();
 
@@ -63,6 +69,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             int size = 30 + random.nextInt(20); // Smaller than rocket
             asteroids.add(new Asteroid(x, y, size, size));
         }
+        for (int i = 0; i < 5; i++) {
+            int x = random.nextInt(400);
+            int y = random.nextInt(400) - 500;
+            int size = 30 + random.nextInt(20); // Smaller than rocket
+            fuelCanisters.add(new FuelCanister(x, y, size, size));
+        }
+
         new Timer(30, e -> moveAsteroids()).start();
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
@@ -123,6 +136,10 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         for (Asteroid asteroid : asteroids) {
             asteroid.draw(g);
+        }
+
+        for(FuelCanister fuelCanister : fuelCanisters) {
+            fuelCanister.draw(g);
         }
 
         g2d.translate(0, -cameraY);
@@ -253,6 +270,19 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             }
         }
 
+        if (fuelCanisterMovingRight) {
+            fuelCanister.setX(fuelCanister.getX() + fuelCanisterSpeed);
+            if (fuelCanister.getX() >= getWidth() - fuelCanister.getWidth()) {
+                fuelCanisterMovingRight = false;
+            }
+        } else {
+            fuelCanister.setX(fuelCanister.getX() - fuelCanisterSpeed);
+            if (fuelCanister.getX() <= 0) {
+                fuelCanisterMovingRight = true;
+            }
+        }
+
+
 // Randomly reposition asteroid vertically
         if (Math.random() < 0.01) { // 1% chance each frame
             int newY = (int) (Math.random() * (getHeight() - asteroid.getHeight()));
@@ -261,6 +291,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             }
         }
 
+        if (Math.random() < 0.01) { // 1% chance each frame
+            int newY = (int) (Math.random() * (getHeight() - fuelCanister.getHeight()));
+            if (newY > 0) {
+                fuelCanister.setY(newY);
+            }
+        }
+
+        moveFuelCanisters();
         checkCollisions();
         repaint();
         velocityY = tempVelocity;
@@ -349,6 +387,24 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         repaint();
     }
 
+    private void moveFuelCanisters() {
+        for (FuelCanister fuelCanister : fuelCanisters) {
+            fuelCanister.setX(fuelCanister.getX() + fuelCanister.getSpeed());
+            fuelCanister.setY(fuelCanister.getY() + fuelCanister.getVerticalSpeed());
+
+            // Bounce horizontally
+            if (fuelCanister.getX() > getWidth() - fuelCanister.getWidth() || fuelCanister.getX() < 0) {
+                fuelCanister.setSpeed(-fuelCanister.getSpeed());
+            }
+
+            // Bounce vertically
+            if (fuelCanister.getY() > getHeight() - fuelCanister.getHeight() || fuelCanister.getY() < 0) {
+                fuelCanister.setVerticalSpeed(-fuelCanister.getVerticalSpeed());
+            }
+        }
+        repaint();
+    }
+
     class Asteroid {
         private int x, y, width, height, speed, verticalSpeed;
 
@@ -363,6 +419,39 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         public void draw(Graphics g) {
             g.setColor(Color.GRAY);
+            g.fillOval(x, y, width, height);
+        }
+
+        public int getX() { return x; }
+        public void setX(int x) { this.x = x; }
+
+        public int getY() { return y; }
+        public void setY(int y) { this.y = y; }
+
+        public int getWidth() { return width; }
+        public int getHeight() { return height; }
+
+        public int getSpeed() { return speed; }
+        public void setSpeed(int speed) { this.speed = speed; }
+
+        public int getVerticalSpeed() { return verticalSpeed; }
+        public void setVerticalSpeed(int verticalSpeed) { this.verticalSpeed = verticalSpeed; }
+    }
+
+    class FuelCanister {
+        private int x, y, width, height, speed, verticalSpeed;
+
+        public FuelCanister(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.speed = new Random().nextBoolean() ? 3 : -3;
+            this.verticalSpeed = new Random().nextBoolean() ? 2 : -2;
+        }
+
+        public void draw(Graphics g) {
+            g.setColor(Color.RED);
             g.fillOval(x, y, width, height);
         }
 
