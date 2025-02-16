@@ -154,4 +154,8 @@ public class Rocket implements Serializable {
     public void setLevel(RocketLevel level) {
         this.level = level;
     }
+
+    public void setDurability(int durability) {
+        this.durability = durability;
+    }
 }
