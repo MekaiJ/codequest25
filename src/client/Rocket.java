@@ -45,6 +45,10 @@ public class Rocket implements Serializable {
         if (this.fuel > level.getFuelCap()) this.fuel = level.getFuelCap();
     }
 
+    public int getXp() {
+        return this.xp;
+    }
+
     public ImageIcon loadRocketImage(RocketLevel level) {
         String imagePath = "src/client/resources/rocket_level" + (level.ordinal() + 1) + ".png";
         ImageIcon icon = new ImageIcon(imagePath);
@@ -85,7 +89,7 @@ public class Rocket implements Serializable {
     }
 
     // Method to check if the rocket should level up
-    private void checkLevelUp() {
+    public void checkLevelUp() {
         while (this.xp >= level.getLevelUpXp() && level != RocketLevel.LEVEL_3) {
             levelUp();
         }
@@ -133,6 +137,10 @@ public class Rocket implements Serializable {
         return fuel;
     }
 
+    public void setXP(int toSet) {
+        this.xp = toSet;
+    }
+
     public RocketLevel getLevel() {
         return level;
     }
@@ -158,5 +166,8 @@ public class Rocket implements Serializable {
 
     public void setDurability(int durability) {
         this.durability = durability;
+    }
+    public void setFuel(int fuel) {
+        this.fuel = fuel;
     }
 }
