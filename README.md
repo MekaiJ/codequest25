@@ -1,5 +1,5 @@
 # codequest25
-Programmed for Google Developer Group's CodeQuest 2025: Build with AI event.
+Programmed for and won first place at Google Developer Group's CodeQuest 2025: Build with AI event.
 
 ## Contributors
 - Luke Barnes
