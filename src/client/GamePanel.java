@@ -20,7 +20,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int MAX_UP_VELOCITY = -20; // Reduced max speed for smoother scrolling
     private int MAX_DOWN_VELOCITY = 20; // Reduced max speed for smoother scrolling
     private int THRUST_POWER = 1; // Reduced thrust power for slower movement
-    private int fuelCapacity = 100000;
+    private int fuelCapacity = 100;
+    private int MAX_FUEL_CAPACITY = 100;
     private int durability = 100;
 
     private ArrayList<Asteroid> asteroids = new ArrayList<>();
@@ -64,8 +65,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         asteroidImage = new ImageIcon("src/client/resources/asteriod.png").getImage();
 
         for (int i = 0; i < 5; i++) {
-            int x = random.nextInt(400);
-            int y = random.nextInt(400) - 500;
+            int x = random.nextInt(1000);
+            int y = random.nextInt(1000) - 1500;
             int size = 30 + random.nextInt(20); // Smaller than rocket
             asteroids.add(new Asteroid(x, y, size, size));
         }
@@ -298,6 +299,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             }
         }
 
+        if (fuelCapacity > 100)
+            fuelCapacity = 100;
+
         moveFuelCanisters();
         checkCollisions();
         repaint();
@@ -319,6 +323,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
                 if (durability <= 0) {
                     gameOver();
                 }
+            }
+        }
+        for (FuelCanister fuelCanister : fuelCanisters) {
+            Rectangle feuelCanisterHitbox = new Rectangle(fuelCanister.getX(), fuelCanister.getY(), 50, 80);
+            if (rocketHitbox.intersects(feuelCanisterHitbox)) {
+                fuelCapacity += 50;
+                fuelCanister.setY(-random.nextInt(400) - 100);
+                fuelCanister.setX(random.nextInt(400));
             }
         }
     }
