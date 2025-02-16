@@ -97,7 +97,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         // Display velocity, height, and fuel as text
         g.drawString("Velocity: " + -(velocityY) + " px/s", 20, 30);
-        g.drawString("Height: " + -(Client.mainRocket.getY() + 80) + " px", 20, 50);
+        g.drawString("Height: " + -(Client.mainRocket.getY()) + " px", 20, 50);
         g.drawString("Fuel:", 20, 625);
         g.drawString("Durability: ", 20, 650);
 
@@ -156,11 +156,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setX(Client.mainRocket.getX() + 5);
         }
 
-        velocityY += 1; // Simulate gravity
+        velocityY += 1; // Simulate graviy
 
         if (Client.mainRocket.getY() > startingPlatform.y) {
             Client.mainRocket.setY(startingPlatform.y);
-            velocityY = 0;
+            velocityY = Math.round(0);
         }
 
         if (velocityY < MAX_UP_VELOCITY)
@@ -178,6 +178,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setY(worldHeight - 80);
             velocityY = 0;
         }
+
+        if (Client.mainRocket.getX() < -20)
+            Client.mainRocket.setX(-20);
+        if (Client.mainRocket.getX() > 425)
+            Client.mainRocket.setX(425);
 
         repaint();
     }
