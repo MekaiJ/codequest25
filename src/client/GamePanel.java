@@ -7,20 +7,18 @@ import static client.Client.serverHandler;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private int velocityY = 0;// Vertical speed
-    private int velocityX = 0;// Horizontal speed
     private boolean thrust = false;
     private boolean xThrustLeft = false;
     private boolean xThrustRight = false;
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private int worldHeight = 200000; // World height
-    private Rectangle startingPlatform = new Rectangle(100, 0, 600, 250);// Landing pad
+    private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256);// Landing pad
     private int MAX_UP_VELOCITY = -45;
     private int MAX_DOWN_VELOCITY = 45;
     private int THRUST_POWER = 2;
     private int DECELRATION = 1;
     private int fuelCapacity = 100;
-    private boolean onPlatform = true;
     private int durability = 100;
 
     private Image backgroundImage;
@@ -92,7 +90,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (launchpadTexture != null) {
             g.drawImage(
                     launchpadTexture,
-                    startingPlatform.x, startingPlatform.y,
+                    -300, -150,
                     startingPlatform.width, startingPlatform.height,
                     null
             );
@@ -159,7 +157,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (thrust && fuelCapacity > 0) {
             velocityY -= THRUST_POWER;// Move up when thrusting
             fuelCapacity -= 1;
-            onPlatform = false;
         }
         else {
             if (velocityY < 0)
