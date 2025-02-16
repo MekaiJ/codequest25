@@ -44,9 +44,25 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        // Draw the background image
+        // Draw the tiled background image
         if (backgroundImage != null) {
-            g2d.drawImage(backgroundImage, 0, cameraY, getWidth(), getHeight(), null);
+            int imageWidth = backgroundImage.getWidth(null);
+            int imageHeight = backgroundImage.getHeight(null);
+
+            // Calculate how many times to tile the image horizontally and vertically
+            int tilesX = (int) Math.ceil((double) getWidth() / imageWidth);
+            int tilesY = (int) Math.ceil((double) getHeight() / imageHeight);
+
+            // Loop to draw the image in a tiled pattern
+            for (int i = 0; i < tilesX; i++) {
+                for (int j = 0; j < tilesY; j++) {
+                    g2d.drawImage(
+                            backgroundImage,
+                            i * imageWidth, j * imageHeight, // Position of each tile
+                            null
+                    );
+                }
+            }
         }
 
         g2d.translate(0, cameraY);
@@ -61,16 +77,17 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             g.fillRect(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
         }
 
-        if(serverHandler != null) {
+        if (serverHandler != null) {
             ImageIcon rocketTextureOther = serverHandler.getOtherRocket().getTexture();
-            if (rocketTexture != null) {
-                rocketTexture.paintIcon(this, g, serverHandler.getOtherRocket().getX(), serverHandler.getOtherRocket().getY());
+            if (rocketTextureOther != null) {
+                rocketTextureOther.paintIcon(this, g, serverHandler.getOtherRocket().getX(), serverHandler.getOtherRocket().getY());
             } else {
                 // Fallback: Draw a red rectangle if no texture is loaded
                 g.setColor(Color.RED);
                 g.fillRect(serverHandler.getOtherRocket().getX(), serverHandler.getOtherRocket().getY(), 50, 80);
             }
         }
+
         // Draw launchpad texture
         if (launchpadTexture != null) {
             g.drawImage(
