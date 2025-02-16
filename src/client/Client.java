@@ -1,9 +1,13 @@
 package client;
+import javax.sound.sampled.*;
 import javax.swing.*;
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.io.IOException;
 import java.net.Socket;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.Scanner;
 
 public class Client {
@@ -35,7 +39,7 @@ public class Client {
         GamePanel panel = new GamePanel();
         frame.add(panel);
         frame.setVisible(true);
-        // PlayMultipleWAV.playAudio("src/client/resources/song.wav");
+        playAudio("src/client/resources/song.aiff");
 
         while(true) {
             Thread.sleep(16);
@@ -73,5 +77,27 @@ public class Client {
     //, ArrayList<String> mp3Files
     static void gameLoop(int currentTick) {
 
+    }
+    public static void playAudio(String filePath) {
+        try {
+            File audioFile = new File(filePath);
+            if (!audioFile.exists()) {
+                System.err.println("File not found: " + filePath);
+                return;
+            }
+
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+
+            // Wait until the clip finishes playing
+            while (clip.isRunning()) {
+                Thread.sleep(100);
+            }
+            clip.close();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
