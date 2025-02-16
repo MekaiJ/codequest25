@@ -10,6 +10,11 @@ import java.util.Random;
 import static client.Client.*;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
+    private static final int SPAWN_HEIGHT_THRESHOLD = 1000;
+    private final long asteroidSPAWN_COOLDOWN = 1000;
+    private final long fuelCanisterSPAWN_COOLDOWN = 1000;
+    private long asteroidlastSpawnTime = 0;
+    private long fuelcanisterlastSpawnTime = 0;
     private int velocityY = 0; // Vertical speed
     private boolean thrust = false;
     private boolean xThrustLeft = false;
@@ -61,23 +66,52 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
         asteroidImage = new ImageIcon("src/client/resources/asteriod.png").getImage();
 
-        for (int i = 0; i < 5; i++) {
-            int x = random.nextInt(1000);
-            int y = random.nextInt(1000) - 1500;
-            int size = 30 + random.nextInt(20); // Smaller than rocket
-            asteroids.add(new Asteroid(x, y, size, size));
-        }
-        for (int i = 0; i < 5; i++) {
-            int x = random.nextInt(400);
-            int y = random.nextInt(400) - 500;
-            int size = 30 + random.nextInt(20); // Smaller than rocket
-            fuelCanisters.add(new FuelCanister(x, y, size, size));
-        }
+        spawnAsteroids();
+        spawnFuelCanisters();
 
         new Timer(30, e -> moveAsteroids()).start();
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
     }
+
+    private void spawnFuelCanisters() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - fuelcanisterlastSpawnTime >= fuelCanisterSPAWN_COOLDOWN) {
+            fuelcanisterlastSpawnTime = currentTime;
+
+            // Spawn a smaller, controlled number of canisters
+            int numToSpawn = 1; // Only spawn 1 canister at a time
+
+            for (int i = 0; i < numToSpawn; i++) {
+                // Use rocket's position as the center point for spawning
+                int x = Client.mainRocket.getX() + random.nextInt(100) - 50; // Offset the spawn horizontally
+                int y = Client.mainRocket.getY() - 100 - random.nextInt(100); // Spawn above the rocket
+                int size = 30 + random.nextInt(20); // Random size for the canisters
+
+                // Create a new fuel canister and add it to the list
+                fuelCanisters.add(new FuelCanister(x, y, size, size));
+            }
+        }
+    }
+
+    private void spawnAsteroids() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - asteroidlastSpawnTime >= asteroidSPAWN_COOLDOWN) {
+            asteroidlastSpawnTime = currentTime;
+            int numToSpawn = 1; // Random number of canisters to spawn
+
+            for (int i = 0; i < numToSpawn; i++) {
+                // Use rocket's position as the center point for spawning
+                int x = Client.mainRocket.getX() + random.nextInt(100) - 50; // Offset the spawn horizontally
+                int y = Client.mainRocket.getY() - 100 - random.nextInt(100); // Spawn above the rocket
+                int size = 30 + random.nextInt(20); // Random size for the canisters
+
+                // Create a new fuel canister and add it to the list
+                asteroids.add(new Asteroid(x, y, size, size));
+            }
+        }
+    }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -259,6 +293,12 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (Client.mainRocket.getX() > 425)
             Client.mainRocket.setX(425);
 
+        // Check if the rocket has reached the spawn height threshold
+        if (Client.mainRocket.getY() < -SPAWN_HEIGHT_THRESHOLD) {
+            spawnFuelCanisters();
+            spawnAsteroids();
+        }
+
         if (asteroidMovingRight) {
             asteroid.setX(asteroid.getX() + asteroidSpeed);
             if (asteroid.getX() >= getWidth() - asteroid.getWidth()) {
@@ -282,6 +322,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
                 fuelCanisterMovingRight = true;
             }
         }
+
+
 
 
 // Randomly reposition asteroid vertically
