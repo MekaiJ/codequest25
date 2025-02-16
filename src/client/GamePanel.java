@@ -13,11 +13,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Timer timer;
     private int cameraY = 0; // Camera Offset
     private Rectangle startingPlatform = new Rectangle(-300, 0, 1032, 256); // Landing pad
-    private int MAX_UP_VELOCITY = -10; // Reduced max speed for smoother scrolling
-    private int MAX_DOWN_VELOCITY = 10; // Reduced max speed for smoother scrolling
+    private int MAX_UP_VELOCITY = -15; // Reduced max speed for smoother scrolling
+    private int MAX_DOWN_VELOCITY = 15; // Reduced max speed for smoother scrolling
     private int THRUST_POWER = 1; // Reduced thrust power for slower movement
     private int fuelCapacity = 100000;
-    private int durability = 100;
+    private boolean hitAstroid = false;
 
     private Image backgroundImage1; // First background image
     private Image backgroundImage2; // Second background image
@@ -28,8 +28,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Image asteroidImage;
 
     private double backgroundScrollY = 0; // Tracks the vertical scroll position of the background
-
-    Asteroid asteroid = new Asteroid(0, 300, 315, 250);
 
     public GamePanel() {
         setBackground(Color.BLACK);
@@ -42,9 +40,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         backgroundImage3 = new ImageIcon("src/client/resources/moon.png").getImage();
         backgroundImageMoon = new ImageIcon("src/client/resources/moon.png").getImage();
         currentBackgroundImage = backgroundImage1; // Set initial background
+        asteroidImage = new ImageIcon("src/client/resources/asteroid.png").getImage();
 
         launchpadTexture = new ImageIcon("src/client/resources/launchpad.png").getImage();
-        asteroidImage = new ImageIcon("src/client/resources/asteriod.png").getImage();
 
         timer = new Timer(30, this); // Game loop running every 30ms
         timer.start();
@@ -103,9 +101,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             g.fillRect(startingPlatform.x, startingPlatform.y, startingPlatform.width, startingPlatform.height);
         }
 
-        if (asteroidImage != null) {
-            g.drawImage(asteroidImage, asteroid.getX(), asteroid.getY(), null);
-        }
+        g.drawImage(asteroidImage, 0, -300, null);
 
         g2d.translate(0, -cameraY);
 
@@ -148,7 +144,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         int durabilityBarWidth = 150;
         int durabilityBarHeight = 15;
-        int durabilityFillWidth = (int) ((durability / 100.0) * durability);
+        int durabilityFillWidth = (int) ((Client.mainRocket.getDurability() / 100.0) * Client.mainRocket.getDurability());
 
         // Outline of the fuel bar
         g.setColor(Color.GRAY);
@@ -167,9 +163,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         g.setColor(Color.GRAY);
         g.fillRect(125, 639, durabilityFillWidth, durabilityBarHeight);
 
-        if (durability > 50) {
+        if (Client.mainRocket.getDurability() > 50) {
             g.setColor(Color.GREEN);
-        } else if (durability > 20) {
+        } else if (Client.mainRocket.getDurability() > 20) {
             g.setColor(Color.YELLOW);
         } else {
             g.setColor(Color.RED);
@@ -220,12 +216,20 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if (Client.mainRocket.getX() > 425)
             Client.mainRocket.setX(425);
 
+        Rectangle asteroidHitbox = new Rectangle(100, -300, 100, 100);
+        Rectangle rocketHitBox = new Rectangle(Client.mainRocket.getX(), Client.mainRocket.getY(), 50, 80);
+        if(!hitAstroid) {
+            if (rocketHitBox.intersects(asteroidHitbox)) {
+                Client.mainRocket.setDurability(Client.mainRocket.getDurability() - 1);
+                hitAstroid = true;
+                System.out.println("durability: " + Client.mainRocket.getDurability());
+                if (Client.mainRocket.getDurability() <= 0) {
+                    resetGame();
+                }
+            }
+        }
         repaint();
         velocityY = tempVelocity;
-
-        if (durability == 0) {
-            resetGame();
-        }
     }
 
     private void resetGame() {
@@ -234,8 +238,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         velocityY = 0;
         cameraY = 0;
         backgroundScrollY = 0; // Reset background scroll
-        fuelCapacity = Client.mainRocket.getFuel();
-        durability = Client.mainRocket.getDurability();
+        fuelCapacity = 100;
+        Client.mainRocket.setDurability(100);
     }
 
     @Override
