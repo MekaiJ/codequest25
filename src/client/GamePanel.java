@@ -154,13 +154,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        int tempVelocity = velocityY;
         if (thrust && fuelCapacity > 0) {
-            velocityY -= THRUST_POWER;// Move up when thrusting
+            tempVelocity -= THRUST_POWER;// Move up when thrusting
             fuelCapacity -= 1;
         }
         else {
             if (velocityY < 0)
-                velocityY += DECELRATION;
+                tempVelocity += DECELRATION;
         }
 
         if (xThrustLeft) {
@@ -170,17 +171,27 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setX(Client.mainRocket.getX() + 5);
         }
 
-        velocityY += 1; // Simulate graviy
+        if(Client.mainRocket.getY() < -90) {
+            tempVelocity += 1;
+        }
+
+        if(Client.mainRocket.getY() > startingPlatform.height) {
+            Client.mainRocket.setY(startingPlatform.y);
+            tempVelocity = 0;
+            thrust = false;
+        }
+
+        tempVelocity += 1; // Simulate graviy
 
         if (Client.mainRocket.getY() > startingPlatform.y) {
             Client.mainRocket.setY(startingPlatform.y);
-            velocityY = Math.round(0);
+            tempVelocity = Math.round(0);
         }
 
         if (velocityY < MAX_UP_VELOCITY)
-            velocityY = MAX_UP_VELOCITY;
+            tempVelocity = MAX_UP_VELOCITY;
         if (velocityY > MAX_DOWN_VELOCITY)
-            velocityY = MAX_DOWN_VELOCITY;
+            tempVelocity = MAX_DOWN_VELOCITY;
 
         Client.mainRocket.setY(Client.mainRocket.getY() + velocityY);
 
@@ -190,7 +201,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         // Prevent rocket from going off-screen
         if (Client.mainRocket.getY() > worldHeight - 80) {
             Client.mainRocket.setY(worldHeight - 80);
-            velocityY = 0;
+            tempVelocity = 0;
         }
 
         if (Client.mainRocket.getX() < -20)
@@ -199,6 +210,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             Client.mainRocket.setX(425);
 
         repaint();
+        velocityY = tempVelocity;
     }
 
     private void resetGame() {
