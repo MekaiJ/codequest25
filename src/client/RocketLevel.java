@@ -3,9 +3,9 @@ package client;
 import java.io.Serializable;
 
 public enum RocketLevel implements Serializable {
-    LEVEL_1(3, 2, "Rust Bucket", 100, 2000),
-    LEVEL_2(5, 5, "The Comet", 200, 3500),
-    LEVEL_3(7, 7, "Time Traveler", 350, 100000);
+    LEVEL_1(3, 1, "Rust Bucket", 100, 2000),
+    LEVEL_2(5, 2, "The Comet", 200, 3500),
+    LEVEL_3(7, 3, "Time Traveler", 350, 100000);
 
     private final int handling;
     private final int durability;
