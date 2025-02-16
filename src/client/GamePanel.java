@@ -11,8 +11,8 @@ import static client.Client.*;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private static final int SPAWN_HEIGHT_THRESHOLD = 1000;
-    private final long asteroidSPAWN_COOLDOWN = 1000;
-    private final long fuelCanisterSPAWN_COOLDOWN = 1000;
+    private final long asteroidSPAWN_COOLDOWN = 200;
+    private final long fuelCanisterSPAWN_COOLDOWN = 500;
     private long asteroidlastSpawnTime = 0;
     private long fuelcanisterlastSpawnTime = 0;
     private int velocityY = 0; // Vertical speed
@@ -84,8 +84,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
             for (int i = 0; i < numToSpawn; i++) {
                 // Use rocket's position as the center point for spawning
-                int x = Client.mainRocket.getX() + random.nextInt(100) - 50; // Offset the spawn horizontally
-                int y = Client.mainRocket.getY() - 100 - random.nextInt(100); // Spawn above the rocket
+                int x = Client.mainRocket.getX() + random.nextInt(200) - 100; // Offset the spawn horizontally
+                int y = Client.mainRocket.getY() - 400 - random.nextInt(300); // Spawn above the rocket
                 int size = 30 + random.nextInt(20); // Random size for the canisters
 
                 // Create a new fuel canister and add it to the list
@@ -102,8 +102,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
             for (int i = 0; i < numToSpawn; i++) {
                 // Use rocket's position as the center point for spawning
-                int x = Client.mainRocket.getX() + random.nextInt(100) - 50; // Offset the spawn horizontally
-                int y = Client.mainRocket.getY() - 100 - random.nextInt(100); // Spawn above the rocket
+                int x = Client.mainRocket.getX() + random.nextInt(200) - 100; // Offset the spawn horizontally
+                int y = Client.mainRocket.getY() - 400 - random.nextInt(300); // Spawn above the rocket
                 int size = 30 + random.nextInt(20); // Random size for the canisters
 
                 // Create a new fuel canister and add it to the list
@@ -437,6 +437,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         JOptionPane.showMessageDialog(this, "You died / ran out of fuel.");
         resetGame();
         timer.start();
+        asteroids.clear();
+        fuelCanisters.clear();
     }
 
     @Override
