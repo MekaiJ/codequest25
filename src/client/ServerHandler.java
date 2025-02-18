@@ -25,10 +25,10 @@ class ServerHandler implements Runnable {
             while(true) {
                 Object fromServer = this.in.readObject();
                 if(fromServer instanceof RocketData) {
-                    System.out.println("recieving from server: " + ((RocketData) fromServer).x + " " + ((RocketData) fromServer).y + " " + ((RocketData) fromServer).level);
                     otherRocket.setX(((RocketData) fromServer).x);
                     otherRocket.setY(((RocketData) fromServer).y);
                     otherRocket.setLevel(((RocketData) fromServer).level);
+                    otherRocket.setStats();
                 }
             }
         }catch (IOException e) {

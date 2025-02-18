@@ -17,19 +17,13 @@ public abstract class Obstacle {
 
     // Method to draw the obstacle
     public void draw(Graphics g) {
-        if (texture != null) {
+        if (this.texture != null) {
             g.drawImage(texture, x, y, width, height, null); // Draw the texture
         } else {
             // Fallback: Draw a colored rectangle if no texture is loaded
             g.setColor(Color.GRAY);
             g.fillRect(x, y, width, height);
         }
-    }
-
-    // Method to check if the rocket collides with the obstacle
-    public boolean collidesWith(Rectangle rocketBounds) {
-        Rectangle obstacleBounds = new Rectangle(x, y, width, height);
-        return obstacleBounds.intersects(rocketBounds);
     }
 
     // Getters

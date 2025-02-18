@@ -21,7 +21,6 @@ class ClientHandler implements Runnable {
         try {
             while (true) {
                 Object fromClient = this.in.readObject();
-                //System.out.println("Recieving From CLient");
                 update = fromClient;
             }
         }catch (Exception e) {}

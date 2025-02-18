@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import javax.swing.*;
 
-public class Rocket implements Serializable {
+public class Rocket {
     //handling is for horizontal move speed
     private int handling;
 
@@ -20,10 +20,7 @@ public class Rocket implements Serializable {
     int y;
 
     private int xp;
-    private int xpToLevelUp;
-
-    private ImageIcon texture;
-
+    private Image texture;
     private RocketLevel level;
 
     public Rocket(RocketLevel level) {
@@ -31,18 +28,8 @@ public class Rocket implements Serializable {
         setX(225);
         this.level = level;
         this.xp = 0;
-        this.texture = loadRocketImage(level);
-        setStats(level);
-    }
-
-    public void consumeFuel(int amount) {
-        this.fuel -= amount;
-        if (this.fuel < 0) this.fuel = 0;
-    }
-
-    public void refuel(int amount) {
-        this.fuel += amount;
-        if (this.fuel > level.getFuelCap()) this.fuel = level.getFuelCap();
+        this.texture = loadRocketImage(level).getImage();
+        setStats();
     }
 
     public int getXp() {
@@ -72,61 +59,23 @@ public class Rocket implements Serializable {
     }
 
     // Method to get the rocket image
-    public ImageIcon getTexture() {
+    public Image getTexture() {
         return texture;
     }
 
-    private void setStats(RocketLevel level) {
-        this.handling = level.getHandling();
-        this.durability = level.getDurability();
-        this.name = level.getName();
-        this.fuel = level.getFuelCap();
-        this.level = level;
+    public void setStats() {
+        this.durability = this.level.getDurability();
+        this.name = this.level.getName();
+        this.fuel = this.level.getFuelCap();
+        this.texture = loadRocketImage(this.level).getImage();
     }
 
     public void addXp(int xpToAdd) {
         this.xp += xpToAdd;
     }
 
-    // Method to check if the rocket should level up
-    public void checkLevelUp() {
-        while (this.xp >= level.getLevelUpXp() && level != RocketLevel.LEVEL_3) {
-            levelUp();
-        }
-    }
-
-    // Method to handle leveling up
-    private void levelUp() {
-        RocketLevel[] levels = RocketLevel.values();
-        int nextLevelIndex = level.ordinal() + 1;
-
-        if (nextLevelIndex < levels.length) {
-            level = levels[nextLevelIndex];
-            this.xp -= level.getLevelUpXp(); // Carry over excess XP
-            updateStats(); // Update rocket stats based on the new level
-            System.out.println("Level up! You are now level " + (level.ordinal() + 1));
-        } else {
-            System.out.println("You are at the maximum level!");
-        }
-    }
-
-    // Method to update rocket stats when leveling up
-    private void updateStats() {
-        System.out.println("Stats updated: Handling=" + level.getHandling() +
-                ", Durability=" + level.getDurability() +
-                ", Name=" + level.getName());
-    }
-
-    public int getXpToNextLevel() {
-        return level.getLevelUpXp();
-    }
-
     public String getName() {
         return name;
-    }
-
-    public int getHandling() {
-        return handling;
     }
 
     public int getDurability() {
